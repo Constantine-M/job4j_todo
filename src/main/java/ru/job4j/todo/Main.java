@@ -16,7 +16,7 @@ public class Main {
     }
 
     @Bean(destroyMethod = "close")
-    public SessionFactory sf() {
+    public SessionFactory sessionFactory() {
         final StandardServiceRegistry registry = new StandardServiceRegistryBuilder()
                 .configure().build();
         return new MetadataSources(registry).buildMetadata().buildSessionFactory();

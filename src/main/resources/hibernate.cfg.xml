@@ -6,7 +6,7 @@
 <hibernate-configuration>
     <session-factory>
         <property name="hibernate.connection.driver_class">org.postgresql.Driver</property>
-        <!--    FYI. База данных называется "cars"-->
+        <!--    FYI. База данных называется "to do (писать слитно! Согласен, название неудачное)"-->
         <property name="hibernate.connection.url">jdbc:postgresql://localhost:5432/todo</property>
         <property name="hibernate.connection.username">postgres</property>
         <property name="hibernate.connection.password">Okhorzina2912</property>
@@ -21,6 +21,9 @@
                 определенной версии PostgreSQL. В нашем случае версия 10 и выше-->
         <property name="hibernate.dialect">org.hibernate.dialect.PostgreSQL10Dialect</property>
 
+        <!--    Если здесь не настроишь маппинг, то твоя энтити Task в пакете model
+                не увидит таблицу, для которой она предназначена    -->
+        <mapping class="ru.job4j.todo.model.Task"/>
 
     </session-factory>
 </hibernate-configuration>
