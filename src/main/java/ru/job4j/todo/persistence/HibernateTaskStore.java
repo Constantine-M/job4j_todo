@@ -141,6 +141,7 @@ public class HibernateTaskStore implements TaskStore {
      *
      * @return список выполненных задач.
      */
+    @Override
     public Collection<Task> findCompletedTasks() {
         try (Session session = sessionFactory.openSession()) {
             session.beginTransaction();
@@ -165,6 +166,7 @@ public class HibernateTaskStore implements TaskStore {
      *
      * @return список новых задач.
      */
+    @Override
     public Collection<Task> findNewTasks() {
         try (Session session = sessionFactory.openSession()) {
             session.beginTransaction();

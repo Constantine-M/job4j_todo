@@ -1,3 +1,4 @@
+[![CI with Maven](https://github.com/Constantine-M/job4j_todo/actions/workflows/gitActions.yml/badge.svg)](https://github.com/Constantine-M/job4j_todo/actions/workflows/gitActions.yml)
 
 # Project "TODO"
 
@@ -20,7 +21,6 @@ Tech stack.
 - Thymeleaf
 - Bootstrap
 - Liquibase
-- Sql2o
 - Lombok
 
 Environment requirements.
