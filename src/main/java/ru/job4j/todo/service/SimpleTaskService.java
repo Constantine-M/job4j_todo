@@ -31,13 +31,17 @@ public class SimpleTaskService implements TaskService {
     }
 
     @Override
-    public void update(Task task) {
-        taskStore.update(task);
+    public boolean update(Task task) {
+        return taskStore.update(task);
     }
 
     @Override
-    public void delete(int taskId) {
-        taskStore.delete(taskId);
+    public boolean delete(int taskId) {
+        var taskOptional = taskStore.findById(taskId);
+        if (taskOptional.isEmpty()) {
+            return false;
+        }
+        return taskStore.delete(taskId);
     }
 
     @Override

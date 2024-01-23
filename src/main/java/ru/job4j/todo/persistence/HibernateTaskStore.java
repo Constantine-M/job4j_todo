@@ -51,16 +51,17 @@ public class HibernateTaskStore implements TaskStore {
      * @param task задача.
      */
     @Override
-    public void update(Task task) {
+    public boolean update(Task task) {
         Session session = sessionFactory.openSession();
+        int affectedRows = 0;
         try {
             session.beginTransaction();
-            session.createQuery(
-                            "UPDATE Task as task SET task.title = :fTitle, task.description = :fDesc WHERE task.id = :fId")
+            Query<Task> query = session.createQuery(
+                            "UPDATE Task as task SET task.title = :fTitle, task.description = :fDesc WHERE task.id = :fId", Task.class)
                     .setParameter("fTitle", task.getTitle())
                     .setParameter("fDesc", task.getDescription())
-                    .setParameter("fId", task.getId())
-                    .executeUpdate();
+                    .setParameter("fId", task.getId());
+            affectedRows = query.executeUpdate();
             session.getTransaction().commit();
         } catch (Exception e) {
             log.error("TRANSACTION ROLLBACK! Hibernate exception logged: {}", e.getMessage());
@@ -68,6 +69,7 @@ public class HibernateTaskStore implements TaskStore {
         } finally {
             session.close();
         }
+        return affectedRows > 0;
     }
 
     /**
@@ -81,14 +83,15 @@ public class HibernateTaskStore implements TaskStore {
      * @param taskId ID задачи.
      */
     @Override
-    public void delete(int taskId) {
+    public boolean delete(int taskId) {
         Session session = sessionFactory.openSession();
+        int affectedRows = 0;
         try {
             session.beginTransaction();
-            session.createQuery(
-                            "DELETE Task as task WHERE task.id = :fId")
-                    .setParameter("fId", taskId)
-                    .executeUpdate();
+            Query<Task> query = session.createQuery(
+                            "DELETE Task as task WHERE task.id = :fId", Task.class)
+                    .setParameter("fId", taskId);
+            affectedRows = query.executeUpdate();
             session.getTransaction().commit();
         } catch (Exception e) {
             log.error("TRANSACTION ROLLBACK! Hibernate exception logged: {}", e.getMessage());
@@ -96,6 +99,7 @@ public class HibernateTaskStore implements TaskStore {
         } finally {
             session.close();
         }
+        return affectedRows > 0;
     }
 
     /**

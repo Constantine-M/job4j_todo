@@ -9,9 +9,9 @@ public interface TaskStore {
 
     Task create(Task task);
 
-    void update(Task task);
+    boolean update(Task task);
 
-    void delete(int taskId);
+    boolean delete(int taskId);
 
     Collection<Task> findAllOrderByDateTime();
 
