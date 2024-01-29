@@ -28,3 +28,47 @@ Environment requirements.
 1. Java 17
 2. Maven 3.8
 3. PostgreSQL 14
+
+Launching the project.
+---------------------
+1. Recommended Chrome based browser.
+2. Install PostgreSQL: login - postgres, password - password;
+3. Create cinema database;
+> CREATE DATABASE todo;
+4. Build the project and run the Spring Boot application
+> mvn clean package spring-boot:run
+
+Application Interaction.
+------------------------
+------------------------
+Main
+----
+![img.png](files/Main.png)
+
+List of all tasks
+--------
+![img.png](files/allTask.png)
+
+Filter to choose task type
+-------
+![img.png](files/Filter.png)
+
+All completed tasks
+------------
+![img.png](files/completed.png)
+
+All new tasks
+-----------
+![img.png](files/newTask.png)
+
+Create task
+----------
+![img.png](files/create.png)
+
+Edit task
+----------
+![img.png](files/edit.png)
+
+Contacts.
+--------
+- Telegram - https://t.me/ConstaMezenin.
