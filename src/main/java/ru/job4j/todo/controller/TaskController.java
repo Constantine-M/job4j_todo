@@ -55,9 +55,13 @@ public class TaskController {
     @GetMapping("/{id}")
     public String getById(@PathVariable int id,
                           Model model) {
-        var task = taskService.findById(id);
-        model.addAttribute("task", task);
-        return "tasks/task";
+        var taskOptional = taskService.findById(id);
+        if (taskOptional.isEmpty()) {
+            model.addAttribute("error", String.format("Task with ID %s not found!", id));
+            return "errors/404";
+        }
+        model.addAttribute("task", taskOptional.get());
+        return "tasks/edit";
     }
 
     /**
@@ -107,15 +111,11 @@ public class TaskController {
         }
     }
 
-    @GetMapping("/create")
-    public String getCreationTaskPage() {
-        return "tasks/create";
-    }
-
     /**
      * Данный метод обрабатывает запрос на
      * создание задачи.
      */
+    @PostMapping("/create")
     public String create(@ModelAttribute Task task, Model model) {
         try {
             taskService.create(task);
@@ -130,7 +130,7 @@ public class TaskController {
      * Данный метод обрабатывает запрос на
      * удаление задачи из списка задач.
      */
-    @PostMapping("/delete/{id}")
+    @GetMapping("/delete/{id}")
     public String delete(@PathVariable int id, Model model) {
         var isDeleted = taskService.delete(id);
         if (!isDeleted) {
@@ -138,5 +138,36 @@ public class TaskController {
             return "errors/404";
         }
         return "redirect:/tasks";
+    }
+
+    /**
+     * Данный метод обрабатывает запрос
+     * на изменение состояния выполнения задачи,
+     * т.е. выполнено/в процессе выполнения.
+     *
+     * Изначально предполагалось, что это будет
+     * аналогично методу {@link TaskController#update},
+     * т.е. считал, что будет POST-запрос.
+     *
+     * В ходе экспериментов нашел такой способ.
+     * Т.е. точно так же как и удаление,
+     * только в нашем случае уже внутри метода
+     * присходит обновление поля isDone у объекта
+     * {@link Task}. Данный вариант отлично
+     * выполняет свою задачу.
+     */
+    @GetMapping("/complete/{id}")
+    public String completeTask(@PathVariable int id, Model model) {
+        try {
+            var isUpdated = taskService.complete(id);
+            if (!isUpdated) {
+                model.addAttribute("error", String.format("Task with ID = %s not found!", id));
+                return "errors/404";
+            }
+            return "redirect:/tasks";
+        } catch (Exception e) {
+            model.addAttribute("error", e.getMessage());
+            return "errors/404";
+        }
     }
 }

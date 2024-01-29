@@ -20,4 +20,6 @@ public interface TaskStore {
     Collection<Task> findCompletedTasks();
 
     Collection<Task> findNewTasks();
+
+    boolean complete(int id);
 }

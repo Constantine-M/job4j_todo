@@ -30,11 +30,20 @@ public class Task {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
-    private LocalDateTime created;
+    /**
+     * Данное поле описывает время создания
+     * объекта {@link Task} и по умолчанию
+     * время = текущему времени.
+     */
+    private LocalDateTime created = LocalDateTime.now();
 
     private String title;
 
     private String description;
 
-    private boolean done;
+    /**
+     * По умолчанию задача должна быть
+     * незавершенной.
+     */
+    private boolean done = false;
 }

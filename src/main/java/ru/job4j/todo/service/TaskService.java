@@ -23,4 +23,6 @@ public interface TaskService {
     Collection<Task> findCompletedTasks();
 
     Collection<Task> findNewTasks();
+
+    boolean complete(int id);
 }

@@ -8,6 +8,7 @@ import org.hibernate.query.Query;
 import org.springframework.stereotype.Repository;
 import ru.job4j.todo.model.Task;
 
+import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.Optional;
 
@@ -48,6 +49,11 @@ public class HibernateTaskStore implements TaskStore {
      * записалась в лог для последующего
      * изучения проблемы.
      *
+     * Столкнулся с Hibernate exception logged:
+     * Update/delete queries cannot be typed.
+     * В данном методе запрос сделал нетипизированным
+     * и заработало.
+     *
      * @param task задача.
      */
     @Override
@@ -56,11 +62,16 @@ public class HibernateTaskStore implements TaskStore {
         int affectedRows = 0;
         try {
             session.beginTransaction();
-            Query<Task> query = session.createQuery(
-                            "UPDATE Task as task SET task.title = :fTitle, task.description = :fDesc WHERE task.id = :fId", Task.class)
+            String hqlQuery = """
+                    UPDATE Task as task
+                    SET task.title = :fTitle, task.description = :fDesc, task.done = :fDone
+                    WHERE task.id = :fId
+                    """;
+            Query query = session.createQuery(hqlQuery)
                     .setParameter("fTitle", task.getTitle())
                     .setParameter("fDesc", task.getDescription())
-                    .setParameter("fId", task.getId());
+                    .setParameter("fId", task.getId())
+                    .setParameter("fDone", task.isDone());
             affectedRows = query.executeUpdate();
             session.getTransaction().commit();
         } catch (Exception e) {
@@ -80,6 +91,9 @@ public class HibernateTaskStore implements TaskStore {
      * обновления все изменения откатились
      * к первоначальным значениям.
      *
+     * В данном методе также сделал запрос
+     * на удаление нетипизированным.
+     *
      * @param taskId ID задачи.
      */
     @Override
@@ -88,8 +102,7 @@ public class HibernateTaskStore implements TaskStore {
         int affectedRows = 0;
         try {
             session.beginTransaction();
-            Query<Task> query = session.createQuery(
-                            "DELETE Task as task WHERE task.id = :fId", Task.class)
+            Query query = session.createQuery("DELETE Task as task WHERE task.id = :fId")
                     .setParameter("fId", taskId);
             affectedRows = query.executeUpdate();
             session.getTransaction().commit();
@@ -162,11 +175,8 @@ public class HibernateTaskStore implements TaskStore {
      * нет, то я считаю новой задачей ту,
      * которой меньше суток.
      *
-     * Если задаче больше 24 часов, то
-     * задача считатся не новой.
-     *
-     * 240000 - это 24 часа в представлении
-     * Hibernate (то что мне удалось найти).
+     * Если задаче больше 2 часов, то
+     * задача считается не новой.
      *
      * @return список новых задач.
      */
@@ -174,10 +184,43 @@ public class HibernateTaskStore implements TaskStore {
     public Collection<Task> findNewTasks() {
         try (Session session = sessionFactory.openSession()) {
             session.beginTransaction();
-            Query<Task> query = session.createQuery(
-                    "FROM Task task WHERE (current_timestamp - task.created) > 240000", Task.class);
+            Query<Task> query = session.createQuery("FROM Task task WHERE task.created > :lastTime", Task.class)
+                        .setParameter("lastTime", LocalDateTime.now().minusHours(2));
             session.getTransaction().commit();
             return query.list();
         }
+    }
+
+    /**
+     * Изменить состояние задачи на "выполнено".
+     *
+     * Метод пришлось переписать по аналогии
+     * с методом удаления. Т.е. находим
+     * задачу по ID и обновляем поле isDone
+     * у {@link Task}.
+     */
+    @Override
+    public boolean complete(int id) {
+        Session session = sessionFactory.openSession();
+        int affectedRows = 0;
+        try {
+            session.beginTransaction();
+            String hqlQuery = """
+                    UPDATE Task as task
+                    SET task.done = :fDone
+                    WHERE task.id = :fId
+                    """;
+            Query query = session.createQuery(hqlQuery)
+                    .setParameter("fId", id)
+                    .setParameter("fDone", true);
+            affectedRows = query.executeUpdate();
+            session.getTransaction().commit();
+        } catch (Exception e) {
+            log.error("TRANSACTION ROLLBACK! Hibernate exception logged: {}", e.getMessage());
+            session.getTransaction().rollback();
+        } finally {
+            session.close();
+        }
+        return affectedRows > 0;
     }
 }
