@@ -6,6 +6,7 @@ About project
 -------------
 This is a classic TODO web application with basic functionality:
 
+- registration/authentication
 - add task
 - update task (in progress -> complete)
 - delete task
@@ -45,9 +46,21 @@ Main
 ----
 ![img.png](files/Main.png)
 
+Registration
+--------
+![img.png](files/registration.png)
+
+Login
+--------
+![img.png](files/login.png)
+
 List of all tasks
 --------
 ![img.png](files/allTask.png)
+
+Detail info
+-------
+![img.png](files/detail.png)
 
 Filter to choose task type
 -------
