@@ -53,6 +53,28 @@ public class TaskController {
      * адресной строки.
      */
     @GetMapping("/{id}")
+    public String getDetailInfoById(@PathVariable int id,
+                          Model model) {
+        var taskOptional = taskService.findById(id);
+        if (taskOptional.isEmpty()) {
+            model.addAttribute("error", String.format("Task with ID %s not found!", id));
+            return "errors/404";
+        }
+        model.addAttribute("task", taskOptional.get());
+        return "tasks/detail";
+    }
+
+    /**
+     * Данный метод обрабатывает запрос
+     * на получение страницы редактирования
+     * задачи.
+     *
+     * Фактически, это то же самое, что и
+     * {@link TaskController#getDetailInfoById},
+     * только ведет на другую страницу, с
+     * немного отличающейся вертской.
+     */
+    @GetMapping("/edit/{id}")
     public String getById(@PathVariable int id,
                           Model model) {
         var taskOptional = taskService.findById(id);

@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="en">
+<head>
+
+    <!--  Зависимости Bootstrap-->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link th:href = "@{/css/bootstrap.min.css}" rel="stylesheet">
+    <script th:src="@{/js/code.jquery.com_jquery-3.7.1.min.js}"></script>
+    <script th:src="@{/js/bootstrap.min.js}"></script>
+    <!--    Чтобы работал выпадающий список в навигационной панели, требуется
+            добавить эту зависимость, иначе ничего выпадать не будет!   -->
+    <script th:src="@{/js/bootstrap.bundle.js}"></script>
+
+    <!--    Здесь я задал стиль для body и футера таким образом,
+            чтобы наш футер всегда был внизу, вне зависимости от того,
+            много контента на странице или мало-->
+    <style>
+        body {
+            min-height: 100vh;
+        }
+        footer {
+            position: sticky;
+            top: 100%;
+        }
+    </style>
+
+    <title>Detail</title>
+</head>
+<body>
+<div class="container-fluid p-0">
+    <!--    С помощью тега <header> и атрибута insert мы вставляем общий компонент страницы (блок навигации, который мы вынесли отдельно)-->
+    <header th:insert="blocks/header :: header"></header>
+    <div class="container">
+        <div class="col-3"></div>
+        <div class="col-9">
+            <!--  По URI /tasks/update будет отправлена форма для редактирования (method=POST)
+                  Аттрибут th:object="${task}" позволяют сделать двустороннее связывание нашего объекта и формы HTML.
+                  Двустороннее оно, потому что данные извлекаются из объекта и проставляются в HTML и, наоборот,
+                  при изменении формы меняется и наш объект. Через th:object указывает связываемый объект, а в th:field его поля    -->
+            <form class="mt-5" style="font-size: 14px" th:action="@{/tasks/detail}" method="get" th:object="${task}">
+                <!--  Аттрибут th:field="*{поле}" также позволяют сделать двустороннее связывание нашего объекта и формы HTML.
+                      Мы на страницу выводим id, но делаем его скрытым (hidden). Это позволяет при обработке формы узнать какая вакансия меняется.
+                      Обрати внимание, если у тебя id в блоке <th:field="*{id}"> подсвечен, значит у тебя действия
+                      проводятся не над объектом, а скорее всего над Optional<Task>. Проверь, чтобы в контроллере
+                      возвращался именно объект, а не Optional.  -->
+                <input type="hidden" name="id" th:field="*{id}" disabled>
+                <div class="row mb-3">
+                    <div class="col-3"></div>
+                    <div class="col-9">
+                        <div class="mb-3">
+                            <label for="taskName" class="form-label"><b>Title</b></label>
+                            <!--    Если ты не заметил вдруг, то все поля, которые отображают информацию,
+                                    подтянутую из модели, были помечены в конце аттрибутом "disabled",
+                                    что в своею очередь не позволяет как-то взаимодействовать с содержимым  -->
+                            <input type="text" class="form-control" id="taskName" name="title" th:field="*{title}" disabled>
+                        </div>
+                    </div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-3"></div>
+                    <div class="col-9">
+                        <div class="mb-3">
+                            <label for="description" class="form-label"><b>Description</b></label>
+                            <!--  Аттрибут "rows" позволяет выбирать произвольную высоту формы.
+                                  Т.е. пользователь сам меняет размер формы оп высоте.
+                                  Если требуется выставить конкретную высоту формы, то следует использовать
+                                  аттрибут style="height: 300px" например-->
+                            <textarea class="form-control" id="description" name="description" th:field="*{description}" style="height: 150px" disabled></textarea>
+                        </div>
+                    </div>
+                </div>
+                <div class="mb-3 row">
+                    <div class="col-8"></div>
+                    <div class="col-4">
+                        <div class="row">
+                            <!--    Кнопка ниже возвращает пользователя на предыдущую страницу. Очень удобно - недавно отыскал  -->
+                            <div class="col-6"><a class="btn btn-warning w-100" onclick="history.back()"> < Back</a></div>
+                            <div class="col-6"><a class="btn btn-success w-100" th:href="@{/tasks/edit/{id}(id=${task.getId()})}">Edit ></a></div>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+</body>
+<!--    Вызов Footer добавляется в конце HTML страницы -->
+<footer th:insert="blocks/footer :: footer"></footer>
+</html>
