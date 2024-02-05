@@ -34,7 +34,7 @@ public class HIbernateUserStore implements UserStore {
     @Override
     public Optional<User> save(User user) {
         Session session = sessionFactory.openSession();
-        try {
+        try (session) {
             session.beginTransaction();
             session.save(user);
             session.getTransaction().commit();
