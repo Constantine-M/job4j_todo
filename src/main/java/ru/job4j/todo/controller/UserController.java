@@ -90,7 +90,7 @@ public class UserController {
         var userOptional = userService.save(user);
         if (userOptional.isEmpty()) {
             model.addAttribute("error", "User already exists with this login!");
-            return "redirect:users/register";
+            return "users/register";
         }
         return "users/login";
     }
