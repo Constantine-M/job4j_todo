@@ -65,6 +65,11 @@ public class SimpleTaskService implements TaskService {
     }
 
     @Override
+    public Collection<Task> findExpiredUncompletedTasks() {
+        return taskStore.findExpiredUncompletedTasks();
+    }
+
+    @Override
     public boolean complete(int id) {
         return taskStore.complete(id);
     }

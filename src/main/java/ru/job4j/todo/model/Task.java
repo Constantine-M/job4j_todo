@@ -45,5 +45,5 @@ public class Task {
      * По умолчанию задача должна быть
      * незавершенной.
      */
-    private boolean done = false;
+    private boolean done;
 }

@@ -192,6 +192,30 @@ public class HibernateTaskStore implements TaskStore {
     }
 
     /**
+     * Найти список невыполненных и
+     * уже не новых задач.
+     *
+     * Если задаче больше 2 часов, то
+     * задача считается не новой.
+     *
+     * @return список невыполненных и
+     * уже не новых задач.
+     */
+    @Override
+    public Collection<Task> findExpiredUncompletedTasks() {
+        try (Session session = sessionFactory.openSession()) {
+            String hql = """
+                    FROM Task task WHERE task.created < :lastTime AND task.done = false
+                    """;
+            session.beginTransaction();
+            Query<Task> query = session.createQuery(hql, Task.class)
+                    .setParameter("lastTime", LocalDateTime.now().minusHours(2));
+            session.getTransaction().commit();
+            return query.list();
+        }
+    }
+
+    /**
      * Изменить состояние задачи на "выполнено".
      *
      * Метод пришлось переписать по аналогии

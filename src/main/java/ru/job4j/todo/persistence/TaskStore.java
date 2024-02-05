@@ -21,5 +21,7 @@ public interface TaskStore {
 
     Collection<Task> findNewTasks();
 
+    Collection<Task> findExpiredUncompletedTasks();
+
     boolean complete(int id);
 }

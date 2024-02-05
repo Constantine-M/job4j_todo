@@ -97,11 +97,22 @@ public class TaskController {
     }
 
     /**
+     * Метод обрабатывает запрос на
+     * вывод всех задач, которые считаются
+     * не выполненными и уже не новыми при этом.
+     */
+    @GetMapping("/expired")
+    public String getExpiredUncompletedTasks(Model model) {
+        model.addAttribute("expired", taskService.findExpiredUncompletedTasks());
+        return "tasks/expired";
+    }
+
+    /**
      * Данный метод обрабатывает запрос на
      * вывод всех новых задач.
      *
      * Напомню, что под "новыми" задачами
-     * имеются ввиду те, которым меньше 24 часов.
+     * имеются ввиду те, которым меньше 2 часов.
      */
     @GetMapping("/new")
     public String getNewTasks(Model model) {
@@ -120,17 +131,12 @@ public class TaskController {
      */
     @PostMapping("/update")
     public String update(@ModelAttribute Task task, Model model) {
-        try {
-            var isUpdated = taskService.update(task);
-            if (!isUpdated) {
-                model.addAttribute("error", String.format("Task with ID = %s not found!", task.getId()));
-                return "errors/404";
-            }
-            return "redirect:/tasks";
-        } catch (Exception e) {
-            model.addAttribute("error", e.getMessage());
+        var isUpdated = taskService.update(task);
+        if (!isUpdated) {
+            model.addAttribute("error", String.format("Task with ID = %s not found!", task.getId()));
             return "errors/404";
         }
+        return "redirect:/tasks";
     }
 
     /**
@@ -139,13 +145,8 @@ public class TaskController {
      */
     @PostMapping("/create")
     public String create(@ModelAttribute Task task, Model model) {
-        try {
-            taskService.create(task);
-            return "redirect:/tasks";
-        } catch (Exception e) {
-            model.addAttribute("error", e.getMessage());
-            return "errors/404";
-        }
+        taskService.create(task);
+        return "redirect:/tasks";
     }
 
     /**
@@ -180,16 +181,11 @@ public class TaskController {
      */
     @GetMapping("/complete/{id}")
     public String completeTask(@PathVariable int id, Model model) {
-        try {
-            var isUpdated = taskService.complete(id);
-            if (!isUpdated) {
-                model.addAttribute("error", String.format("Task with ID = %s not found!", id));
-                return "errors/404";
-            }
-            return "redirect:/tasks";
-        } catch (Exception e) {
-            model.addAttribute("error", e.getMessage());
+        var isUpdated = taskService.complete(id);
+        if (!isUpdated) {
+            model.addAttribute("error", String.format("Task with ID = %s not found!", id));
             return "errors/404";
         }
+        return "redirect:/tasks";
     }
 }

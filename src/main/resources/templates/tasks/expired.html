@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="en">
+<head>
+
+    <!--  Зависимости Bootstrap-->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link th:href = "@{/css/bootstrap.min.css}" rel="stylesheet">
+    <script th:src="@{/js/code.jquery.com_jquery-3.7.1.min.js}"></script>
+    <script th:src="@{/js/bootstrap.min.js}"></script>
+    <!--    Чтобы работал выпадающий список в навигационной панели, требуется
+            добавить эту зависимость, иначе ничего выпадать не будет!   -->
+    <script th:src="@{/js/bootstrap.bundle.js}"></script>
+
+    <!--    Здесь я задал стиль для body и футера таким образом,
+            чтобы наш футер всегда был внизу, вне зависимости от того,
+            много контента на странице или мало-->
+    <style>
+        body {
+            min-height: 100vh;
+        }
+        footer {
+            position: sticky;
+            top: 100%;
+        }
+    </style>
+
+    <title>Still in progress..</title>
+</head>
+<!--    Эта строка позволяет добавить иконку сайта. Главное, чтобы картинка была доступна.
+        Один раз здесь написал и хватит - на других страницах она не нужна-->
+<link rel="shortcut icon" th:href="@{/images/icon-ok.svg}"/>
+<body>
+<div class="container-fluid p-0">
+    <!--    С помощью тега <header> и атрибута insert мы вставляем общий компонент страницы (блок навигации, который мы вынесли отдельно)-->
+    <header th:insert="blocks/header :: header"></header>
+    <div class="container">
+        <div class="row">
+            <table class="table table-stripped table-borderless table-hover caption-top">
+                <caption>There are tasks that is still in progress, but not new</caption>
+                <thead>
+                <tr>
+                    <th scope="col"></th>
+                    <th scope="col"></th>
+                    <th scope="col"></th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="task: ${expired}">
+                    <!--    <td> обозначает ячеку таблицы. В этой ячейке можно
+                            вносить инфу по строкам. <row> обозначает строку в таблице.
+                            Так мы в одной строке уместили год, жанр, длительность фильма
+                            и пр. аттрибуты. Тег <span> можно использовать для текста.
+                            Для всей ячейки мы задали стиль. Собсно стиль заключается
+                            в размере шрифта.-->
+                    <td style="font-size: 16px">
+                        <row>
+                            <!--    Стиль style="text-decoration:none" убирает нижнее подчеркивание,
+                                    когда наводишь курсор на текст, который является ссылкой    -->
+                            <a style="text-decoration:none" class="h5" th:text="${task.getTitle()}"
+                               th:href="@{/tasks/{id}(id=${task.getId()})}"/>
+                        </row>
+                    </td>
+                    <td style="font-size: 16px">
+                        <row class="h5" th:text="${#temporals.format(task.getCreated(), 'dd/MM/yyyy HH:mm')}"></row>
+                    </td>
+                    <!--    Чтобы заменить сухие "true" или "false" на что-то более информативное,
+                            можно так же использовать switch-case блок. Аккуратно и удобно  -->
+                    <td style="font-size: 16px" th:switch="${task.isDone()}">
+                        <row class="h5" th:case="true" th:text="'complete'"></row>
+                        <row class="h5" th:case="false" th:text="'in progress'"></row>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+        <div class="row">
+            <br>
+        </div>
+        <div class="row">
+            <a class="btn btn-outline-secondary w-25" th:href="@{/tasks}">Back to all tasks</a>
+        </div>
+    </div>
+</div>
+</body>
+<!--    Вызов Footer добавляется в конце HTML страницы -->
+<footer th:insert="blocks/footer :: footer"></footer>
+</html>
