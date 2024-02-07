@@ -42,8 +42,8 @@ public class HIbernateUserStore implements UserStore {
         } catch (Exception e) {
             log.error("TRANSACTION ROLLBACK WITH HIBERNATE EXCEPTION: {}", e.getMessage());
             session.getTransaction().rollback();
-            return Optional.empty();
         }
+        return Optional.empty();
     }
 
     /**
