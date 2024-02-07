@@ -1,7 +1,8 @@
 package ru.job4j.todo.model;
 
-import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
@@ -11,11 +12,23 @@ import java.time.LocalDateTime;
  * с которой она связана, нужно в файле
  * конфигурации hibernate.cfg.xml
  * настроить маппинг.
+ *
+ * В связке Lombok + Hibernate имеются
+ * подводные камни. Таким образом, в
+ * entity-классах не нужно использовать
+ * аннотации {@link lombok.Data},
+ * {@link lombok.EqualsAndHashCode},
+ * и {@link lombok.ToString}.
+ *
+ * Не наносят вреда entity-классам
+ * аннотации {@link Getter}, {@link Setter},
+ * {@link lombok.Builder}.
  */
 @Table(name = "tasks")
 @Entity
 @NoArgsConstructor
-@Data
+@Getter
+@Setter
 public class Task {
 
     /**
@@ -46,4 +59,12 @@ public class Task {
      * незавершенной.
      */
     private boolean done;
+
+    public Task(int id, LocalDateTime created, String title, String description, boolean done) {
+        this.id = id;
+        this.created = created;
+        this.title = title;
+        this.description = description;
+        this.done = done;
+    }
 }

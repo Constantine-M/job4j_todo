@@ -1,7 +1,8 @@
 package ru.job4j.todo.model;
 
-import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import javax.persistence.*;
 
@@ -13,12 +14,24 @@ import javax.persistence.*;
  * конфигурации hibernate.cfg.xml
  * настроить маппинг.
  *
+ * В связке Lombok + Hibernate имеются
+ * подводные камни. Таким образом, в
+ * entity-классах не нужно использовать
+ * аннотации {@link lombok.Data},
+ * {@link lombok.EqualsAndHashCode},
+ * и {@link lombok.ToString}.
+ *
+ * Не наносят вреда entity-классам
+ * аннотации {@link Getter}, {@link Setter},
+ * {@link lombok.Builder}.
+ *
  * @author Constantine on 31.01.2024
  */
 @NoArgsConstructor
 @Entity
 @Table(name = "todo_user")
-@Data
+@Getter
+@Setter
 public class User {
 
     @Id
@@ -30,4 +43,11 @@ public class User {
     private String login;
 
     private String password;
+
+    public User(int id, String name, String login, String password) {
+        this.id = id;
+        this.name = name;
+        this.login = login;
+        this.password = password;
+    }
 }
