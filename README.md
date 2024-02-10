@@ -12,6 +12,7 @@ This is a classic TODO web application with basic functionality:
 - delete task
 - display only completed tasks/only new tasks/all tasks
 
+In this project we applied the Command pattern to simplify out code.
 
 Tech stack.
 --------------

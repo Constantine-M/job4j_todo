@@ -1,118 +1,103 @@
 package ru.job4j.todo.persistence;
 
 import lombok.AllArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.hibernate.Session;
-import org.hibernate.SessionFactory;
-import org.hibernate.query.Query;
+import org.hibernate.event.spi.PersistEventListener;
 import org.springframework.stereotype.Repository;
 import ru.job4j.todo.model.Task;
 
+import javax.persistence.PersistenceException;
 import java.time.LocalDateTime;
 import java.util.Collection;
+import java.util.Map;
 import java.util.Optional;
 
-@Slf4j
+/**
+ * В данном классе мы применили шаблон
+ * проектирования Command и упростили код.
+ *
+ * По сути в данном классе мы реализовали
+ * абстрактную команду, а общее поведение,
+ * характерное всем методам данного класса,
+ * вынесено в {@link CrudRepository}.
+ */
 @AllArgsConstructor
 @Repository
 public class HibernateTaskStore implements TaskStore {
 
-    private final SessionFactory sessionFactory;
+    private final CrudRepository crudRepository;
 
     /**
      * Создать задачу.
      *
-     * В данном методе сипользуем
-     * try-with-resources.
+     * Данный метод добавляет модель
+     * {@link Task} в persistent context.
+     * По сути то же самое, что делает
+     * {@link Session#save}, но есть нюансы.
+     * {@link Session#persist} ничего не
+     * возвращает, работает только в рамках
+     * транзакции. Если вызвать метод у
+     * detached-объекта, то будет выброшено
+     * исключение {@link PersistenceException}.
+     *
+     * В Hibernate все построено на
+     * event-ах и listener-ах.
+     * Создается event, который обрабатывается
+     * соответствующим listener-ом
+     * {@link PersistEventListener#onPersist},
+     * который собственно и выполнит команду
+     * на добавление user-а в persistent
+     * context.
      */
     @Override
     public Task create(Task task) {
-        try (Session session = sessionFactory.openSession()) {
-            session.beginTransaction();
-            session.save(task);
-            session.getTransaction().commit();
-            return task;
-        }
+        crudRepository.run(session -> session.persist(task));
+        return task;
     }
 
     /**
      * Обновить задачу в БД.
      *
-     * Обновляются поля краткого описания
-     * (title) и подробного описания
-     * (description).
-     *
-     * В данном методе используем конструкцию
-     * try-catch, чтобы в случае неудачного
-     * обновления все изменения откатились
-     * к первоначальным значениям, а ошибка
-     * записалась в лог для последующего
-     * изучения проблемы.
+     * {@link Session#update(Object)} переводит
+     * состояние объекта из detached в
+     * persistent.
      *
      * Столкнулся с Hibernate exception logged:
      * Update/delete queries cannot be typed.
-     * В данном методе запрос сделал нетипизированным
-     * и заработало.
+     * В данном случае запрос должен быть нетипизированным
+     * и заработает.
+     *
+     * {@link Session#merge} и {@link Session#update}
+     * обновляют задачу полностью (все поля).
+     * По ТЗ дата и время создания задачи не
+     * должно изменяться. Поэтому в данном методе
+     * был использован hql запрос.
      *
      * @param task задача.
      */
     @Override
-    public boolean update(Task task) {
-        Session session = sessionFactory.openSession();
-        int affectedRows = 0;
-        try {
-            session.beginTransaction();
-            String hqlQuery = """
-                    UPDATE Task as task
-                    SET task.title = :fTitle, task.description = :fDesc, task.done = :fDone
-                    WHERE task.id = :fId
-                    """;
-            Query query = session.createQuery(hqlQuery)
-                    .setParameter("fTitle", task.getTitle())
-                    .setParameter("fDesc", task.getDescription())
-                    .setParameter("fId", task.getId())
-                    .setParameter("fDone", task.isDone());
-            affectedRows = query.executeUpdate();
-            session.getTransaction().commit();
-        } catch (Exception e) {
-            log.error("TRANSACTION ROLLBACK! Hibernate exception logged: {}", e.getMessage());
-            session.getTransaction().rollback();
-        } finally {
-            session.close();
-        }
-        return affectedRows > 0;
+    public void update(Task task) {
+        String hql = """
+                UPDATE Task as task
+                SET task.title = :fTitle, task.description = :fDesc
+                WHERE task.id = :fId
+                """;
+        crudRepository.run(hql,
+                Map.of("fTitle", task.getTitle(),
+                        "fDesc", task.getDescription(),
+                        "fId", task.getId()));
     }
 
     /**
      * Удалить задачу по ID.
      *
-     * В данном методе используем конструкцию
-     * try-catch, чтобы в случае неудачного
-     * обновления все изменения откатились
-     * к первоначальным значениям.
-     *
-     * В данном методе также сделал запрос
-     * на удаление нетипизированным.
-     *
      * @param taskId ID задачи.
      */
     @Override
-    public boolean delete(int taskId) {
-        Session session = sessionFactory.openSession();
-        int affectedRows = 0;
-        try {
-            session.beginTransaction();
-            Query query = session.createQuery("DELETE Task as task WHERE task.id = :fId")
-                    .setParameter("fId", taskId);
-            affectedRows = query.executeUpdate();
-            session.getTransaction().commit();
-        } catch (Exception e) {
-            log.error("TRANSACTION ROLLBACK! Hibernate exception logged: {}", e.getMessage());
-            session.getTransaction().rollback();
-        } finally {
-            session.close();
-        }
-        return affectedRows > 0;
+    public void delete(int taskId) {
+        crudRepository.run("DELETE Task as task WHERE task.id = :fId",
+                Map.of("fId", taskId)
+        );
     }
 
     /**
@@ -122,35 +107,21 @@ public class HibernateTaskStore implements TaskStore {
      */
     @Override
     public Collection<Task> findAllOrderByDateTime() {
-        try (Session session = sessionFactory.openSession()) {
-            session.beginTransaction();
-            Query<Task> query = session.createQuery("FROM Task task ORDER BY task.created", Task.class);
-            session.getTransaction().commit();
-            return query.list();
-        }
+        return crudRepository.query("FROM Task task ORDER BY task.created DESC", Task.class);
     }
 
     /**
      * Найти задачу по ID.
-     *
-     * Здесь, чтобы вернуть Optional<User>,
-     * мы используем специальный метод,
-     * определенный в {@link Query} -
-     * {@link Query#uniqueResultOptional}.
      *
      * @param taskId ID задачи.
      * @return задача.
      */
     @Override
     public Optional<Task> findById(int taskId) {
-        try (Session session = sessionFactory.openSession()) {
-            session.beginTransaction();
-            Query<Task> query = session.createQuery(
-                            "FROM Task task WHERE task.id = :fId", Task.class)
-                    .setParameter("fId", taskId);
-            session.getTransaction().commit();
-            return query.uniqueResultOptional();
-        }
+        return crudRepository.optional(
+                "FROM Task task WHERE task.id = :fId", Task.class,
+                Map.of("fId", taskId)
+        );
     }
 
     /**
@@ -160,12 +131,7 @@ public class HibernateTaskStore implements TaskStore {
      */
     @Override
     public Collection<Task> findCompletedTasks() {
-        try (Session session = sessionFactory.openSession()) {
-            session.beginTransaction();
-            Query<Task> query = session.createQuery("FROM Task task WHERE task.done = true", Task.class);
-            session.getTransaction().commit();
-            return query.list();
-        }
+        return crudRepository.query("FROM Task task WHERE task.done = true", Task.class);
     }
 
     /**
@@ -173,7 +139,7 @@ public class HibernateTaskStore implements TaskStore {
      *
      * Т.к. четкого определния новой задачи в ТЗ
      * нет, то я считаю новой задачей ту,
-     * которой меньше суток.
+     * которой меньше 2 часов.
      *
      * Если задаче больше 2 часов, то
      * задача считается не новой.
@@ -182,13 +148,10 @@ public class HibernateTaskStore implements TaskStore {
      */
     @Override
     public Collection<Task> findNewTasks() {
-        try (Session session = sessionFactory.openSession()) {
-            session.beginTransaction();
-            Query<Task> query = session.createQuery("FROM Task task WHERE task.created > :lastTime", Task.class)
-                        .setParameter("lastTime", LocalDateTime.now().minusHours(2));
-            session.getTransaction().commit();
-            return query.list();
-        }
+        return crudRepository.query(
+                "FROM Task task WHERE task.created > :lastTime", Task.class,
+                Map.of("lastTime", LocalDateTime.now().minusHours(2))
+        );
     }
 
     /**
@@ -203,16 +166,12 @@ public class HibernateTaskStore implements TaskStore {
      */
     @Override
     public Collection<Task> findExpiredUncompletedTasks() {
-        try (Session session = sessionFactory.openSession()) {
-            String hql = """
-                    FROM Task task WHERE task.created < :lastTime AND task.done = false
-                    """;
-            session.beginTransaction();
-            Query<Task> query = session.createQuery(hql, Task.class)
-                    .setParameter("lastTime", LocalDateTime.now().minusHours(2));
-            session.getTransaction().commit();
-            return query.list();
-        }
+        String hql = """
+                FROM Task task WHERE task.created < :lastTime AND task.done = false
+                """;
+        return crudRepository.query(hql, Task.class,
+                Map.of("lastTime", LocalDateTime.now().minusHours(2))
+        );
     }
 
     /**
@@ -224,27 +183,16 @@ public class HibernateTaskStore implements TaskStore {
      * у {@link Task}.
      */
     @Override
-    public boolean complete(int id) {
-        Session session = sessionFactory.openSession();
-        int affectedRows = 0;
-        try {
-            session.beginTransaction();
-            String hqlQuery = """
-                    UPDATE Task as task
-                    SET task.done = :fDone
-                    WHERE task.id = :fId
-                    """;
-            Query query = session.createQuery(hqlQuery)
-                    .setParameter("fId", id)
-                    .setParameter("fDone", true);
-            affectedRows = query.executeUpdate();
-            session.getTransaction().commit();
-        } catch (Exception e) {
-            log.error("TRANSACTION ROLLBACK! Hibernate exception logged: {}", e.getMessage());
-            session.getTransaction().rollback();
-        } finally {
-            session.close();
-        }
-        return affectedRows > 0;
+    public void complete(int id) {
+        String hql = """
+                UPDATE Task as task
+                SET task.done = :fDone
+                WHERE task.id = :fId
+                """;
+        crudRepository.run(
+                hql,
+                Map.of("fId", id,
+                        "fDone", true)
+        );
     }
 }

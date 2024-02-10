@@ -130,12 +130,8 @@ public class TaskController {
      * на страницу с текстом ошибки.
      */
     @PostMapping("/update")
-    public String update(@ModelAttribute Task task, Model model) {
-        var isUpdated = taskService.update(task);
-        if (!isUpdated) {
-            model.addAttribute("error", String.format("Task with ID = %s not found!", task.getId()));
-            return "errors/404";
-        }
+    public String update(@ModelAttribute Task task) {
+        taskService.update(task);
         return "redirect:/tasks";
     }
 
@@ -154,12 +150,8 @@ public class TaskController {
      * удаление задачи из списка задач.
      */
     @GetMapping("/delete/{id}")
-    public String delete(@PathVariable int id, Model model) {
-        var isDeleted = taskService.delete(id);
-        if (!isDeleted) {
-            model.addAttribute("error", String.format("Task with ID = %s not found!", id));
-            return "errors/404";
-        }
+    public String delete(@PathVariable int id) {
+        taskService.delete(id);
         return "redirect:/tasks";
     }
 
@@ -180,12 +172,8 @@ public class TaskController {
      * выполняет свою задачу.
      */
     @GetMapping("/complete/{id}")
-    public String completeTask(@PathVariable int id, Model model) {
-        var isUpdated = taskService.complete(id);
-        if (!isUpdated) {
-            model.addAttribute("error", String.format("Task with ID = %s not found!", id));
-            return "errors/404";
-        }
+    public String completeTask(@PathVariable int id) {
+        taskService.complete(id);
         return "redirect:/tasks";
     }
 }

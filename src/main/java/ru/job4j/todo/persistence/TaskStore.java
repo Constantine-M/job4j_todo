@@ -9,9 +9,9 @@ public interface TaskStore {
 
     Task create(Task task);
 
-    boolean update(Task task);
+    void update(Task task);
 
-    boolean delete(int taskId);
+    void delete(int taskId);
 
     Collection<Task> findAllOrderByDateTime();
 
@@ -23,5 +23,5 @@ public interface TaskStore {
 
     Collection<Task> findExpiredUncompletedTasks();
 
-    boolean complete(int id);
+    void complete(int id);
 }
