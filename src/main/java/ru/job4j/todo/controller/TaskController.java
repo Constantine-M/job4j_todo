@@ -5,6 +5,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import ru.job4j.todo.model.Task;
+import ru.job4j.todo.model.User;
 import ru.job4j.todo.service.TaskService;
 
 /**
@@ -20,6 +21,7 @@ import ru.job4j.todo.service.TaskService;
 @AllArgsConstructor
 @Controller
 @RequestMapping("/tasks")
+@SessionAttributes("user")
 public class TaskController {
 
     private final TaskService taskService;
@@ -138,9 +140,21 @@ public class TaskController {
     /**
      * Данный метод обрабатывает запрос на
      * создание задачи.
+     *
+     * Прежде, чем отправить POST запрос
+     * на создание задачи, добавим в задачу
+     * информацию о том, к какому пользователю
+     * данная задача будет прикреплена.
+     *
+     * Для этого мы воспользовались аннотацией
+     * {@link SessionAttributes}, которая
+     * позволяет хранить в сессии объекты.
+     * В нашем случае это пользователь.
      */
     @PostMapping("/create")
-    public String create(@ModelAttribute Task task, Model model) {
+    public String create(@ModelAttribute Task task,
+                         @ModelAttribute("user") User user) {
+        task.setUser(user);
         taskService.create(task);
         return "redirect:/tasks";
     }

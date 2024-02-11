@@ -3,6 +3,7 @@ package ru.job4j.todo.model;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.ToString;
 
 import javax.persistence.*;
 
@@ -27,11 +28,11 @@ import javax.persistence.*;
  *
  * @author Constantine on 31.01.2024
  */
-@NoArgsConstructor
-@Entity
-@Table(name = "todo_user")
 @Getter
 @Setter
+@NoArgsConstructor
+@Table(name = "todo_user")
+@Entity
 public class User {
 
     @Id
@@ -49,5 +50,13 @@ public class User {
         this.name = name;
         this.login = login;
         this.password = password;
+    }
+
+    @Override
+    public String toString() {
+        return "User{"
+                + "name='" + name + '\''
+                +
+                '}';
     }
 }

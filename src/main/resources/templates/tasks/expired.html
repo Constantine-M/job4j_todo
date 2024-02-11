@@ -43,6 +43,7 @@
                     <th scope="col"></th>
                     <th scope="col"></th>
                     <th scope="col"></th>
+                    <th scope="col"></th>
                 </tr>
                 </thead>
                 <tbody>
@@ -69,6 +70,9 @@
                     <td style="font-size: 16px" th:switch="${task.isDone()}">
                         <row class="h5" th:case="true" th:text="'complete'"></row>
                         <row class="h5" th:case="false" th:text="'in progress'"></row>
+                    </td>
+                    <td style="font-size: 16px">
+                        <row class="h5" th:text="${task.getUser().name}"></row>
                     </td>
                 </tr>
                 </tbody>

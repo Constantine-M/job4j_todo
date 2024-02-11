@@ -60,11 +60,16 @@ public class Task {
      */
     private boolean done;
 
-    public Task(int id, LocalDateTime created, String title, String description, boolean done) {
+    @ManyToOne
+    @JoinColumn(name = "user_id")
+    private User user;
+
+    public Task(int id, LocalDateTime created, String title, String description, boolean done, User user) {
         this.id = id;
         this.created = created;
         this.title = title;
         this.description = description;
         this.done = done;
+        this.user = user;
     }
 }
