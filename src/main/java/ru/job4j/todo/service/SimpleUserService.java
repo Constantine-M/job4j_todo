@@ -43,11 +43,7 @@ public class SimpleUserService implements UserService {
      */
     @Override
     public Optional<User> save(User user) {
-        var userOptional = findByLoginAndPassword(user.getLogin(), user.getPassword());
-        if (userOptional.isPresent()) {
-            return Optional.empty();
-        }
-        return Optional.of(userStore.save(user));
+        return userStore.save(user);
     }
 
     @Override

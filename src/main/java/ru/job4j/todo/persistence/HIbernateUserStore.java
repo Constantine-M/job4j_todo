@@ -1,6 +1,7 @@
 package ru.job4j.todo.persistence;
 
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Repository;
 import ru.job4j.todo.model.User;
 
@@ -18,6 +19,7 @@ import java.util.Optional;
  *
  * @author Constantine on 10.02.2024
  */
+@Slf4j
 @AllArgsConstructor
 @Repository
 public class HIbernateUserStore implements UserStore {
@@ -31,9 +33,14 @@ public class HIbernateUserStore implements UserStore {
      * имя, логин и пароль.
      */
     @Override
-    public User save(User user) {
-        crudRepository.run(session -> session.persist(user));
-        return user;
+    public Optional<User> save(User user) {
+        try {
+            crudRepository.run(session -> session.persist(user));
+            return Optional.of(user);
+        } catch (Exception e) {
+            log.error("Method cant save user! Hibernate exception logged: {}", e.getMessage());
+        }
+        return Optional.empty();
     }
 
     /**
