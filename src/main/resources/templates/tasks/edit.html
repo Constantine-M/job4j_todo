@@ -48,12 +48,21 @@
                       проводятся не над объектом, а скорее всего над Optional<Task>. Проверь, чтобы в контроллере
                       возвращался именно объект, а не Optional.  -->
                 <input type="hidden" name="id" th:field="*{id}">
+                <div class="row">
+                    <div class="col-3"></div>
+                    <div class="col-9">
+                        <div>
+                            <label for="taskName" class="form-label"><b>Title</b></label>
+                            <input type="text" class="form-control" id="taskName" name="title" th:field="*{title}" placeholder="Specify your task briefly">
+                        </div>
+                    </div>
+                </div>
                 <div class="row mb-3">
                     <div class="col-3"></div>
                     <div class="col-9">
                         <div class="mb-3">
-                            <label for="taskName" class="form-label"><b>Title</b></label>
-                            <input type="text" class="form-control" id="taskName" name="title" th:field="*{title}" placeholder="Specify your task briefly">
+                            <label for="userName" class="form-label"><b>User name</b></label>
+                            <input type="text" class="form-control" id="userName" name="name" th:field="*{user.name}">
                         </div>
                     </div>
                 </div>

@@ -21,7 +21,6 @@ import ru.job4j.todo.service.TaskService;
 @AllArgsConstructor
 @Controller
 @RequestMapping("/tasks")
-@SessionAttributes("user")
 public class TaskController {
 
     private final TaskService taskService;
@@ -147,13 +146,15 @@ public class TaskController {
      * данная задача будет прикреплена.
      *
      * Для этого мы воспользовались аннотацией
-     * {@link SessionAttributes}, которая
+     * {@link SessionAttribute}, которая
      * позволяет хранить в сессии объекты.
      * В нашем случае это пользователь.
+     * Аннотация прописывается в параметрах
+     * метода.
      */
     @PostMapping("/create")
     public String create(@ModelAttribute Task task,
-                         @ModelAttribute("user") User user) {
+                         @SessionAttribute User user) {
         task.setUser(user);
         taskService.create(task);
         return "redirect:/tasks";
