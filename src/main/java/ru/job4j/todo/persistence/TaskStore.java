@@ -1,6 +1,7 @@
 package ru.job4j.todo.persistence;
 
 import ru.job4j.todo.model.Task;
+import ru.job4j.todo.model.User;
 
 import java.util.Collection;
 import java.util.Optional;
@@ -13,15 +14,15 @@ public interface TaskStore {
 
     void delete(int taskId);
 
-    Collection<Task> findAllOrderByDateTime();
+    Collection<Task> findAllOrderByDateTime(User user);
 
     Optional<Task> findById(int taskId);
 
-    Collection<Task> findCompletedTasks();
+    Collection<Task> findCompletedTasks(User user);
 
-    Collection<Task> findNewTasks();
+    Collection<Task> findNewTasks(User user);
 
-    Collection<Task> findExpiredUncompletedTasks();
+    Collection<Task> findExpiredUncompletedTasks(User user);
 
     void complete(int id);
 }

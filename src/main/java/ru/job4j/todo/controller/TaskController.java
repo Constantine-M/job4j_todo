@@ -34,11 +34,17 @@ public class TaskController {
      * Он используется Thymeleaf для поиска
      * объектов, которые нужны отобразить на виде.
      *
+     * Чтобы вывести задачи только залогиненого
+     * пользователя, в метод передадим
+     * пользователя из сессии. Для этого используем
+     * аннотацию {@link SessionAttribute}.
+     *
      * В Model мы добавляем объект tasks.
      */
     @GetMapping
-    public String getAllTasks(Model model) {
-        model.addAttribute("tasks", taskService.findAllOrderByDateTime());
+    public String getAllTasks(Model model,
+                              @SessionAttribute User user) {
+        model.addAttribute("tasks", taskService.findAllOrderByDateTime(user));
         return "tasks/all";
     }
 
@@ -92,8 +98,9 @@ public class TaskController {
      * вывод всех выполненных задач.
      */
     @GetMapping("/completed")
-    public String getCompletedTasks(Model model) {
-        model.addAttribute("completed", taskService.findCompletedTasks());
+    public String getCompletedTasks(Model model,
+                                    @SessionAttribute User user) {
+        model.addAttribute("completed", taskService.findCompletedTasks(user));
         return "tasks/completed";
     }
 
@@ -103,8 +110,9 @@ public class TaskController {
      * не выполненными и уже не новыми при этом.
      */
     @GetMapping("/expired")
-    public String getExpiredUncompletedTasks(Model model) {
-        model.addAttribute("expired", taskService.findExpiredUncompletedTasks());
+    public String getExpiredUncompletedTasks(Model model,
+                                             @SessionAttribute User user) {
+        model.addAttribute("expired", taskService.findExpiredUncompletedTasks(user));
         return "tasks/expired";
     }
 
@@ -116,8 +124,9 @@ public class TaskController {
      * имеются ввиду те, которым меньше 2 часов.
      */
     @GetMapping("/new")
-    public String getNewTasks(Model model) {
-        model.addAttribute("newTasks", taskService.findNewTasks());
+    public String getNewTasks(Model model,
+                              @SessionAttribute User user) {
+        model.addAttribute("newTasks", taskService.findNewTasks(user));
         return "tasks/new";
     }
 

@@ -5,6 +5,7 @@ import org.hibernate.Session;
 import org.hibernate.event.spi.PersistEventListener;
 import org.springframework.stereotype.Repository;
 import ru.job4j.todo.model.Task;
+import ru.job4j.todo.model.User;
 
 import javax.persistence.PersistenceException;
 import java.time.LocalDateTime;
@@ -103,11 +104,18 @@ public class HibernateTaskStore implements TaskStore {
     /**
      * Найти все задачи.
      *
+     * Чтобы вывести список задач только залогиненого
+     * пользователя, требуется его передать
+     * в метод. Пользователя будем брать из сессии.
+     *
+     * @param user залогиненый пользователь
      * @return список задач, упорядоченный по времени.
      */
     @Override
-    public Collection<Task> findAllOrderByDateTime() {
-        return crudRepository.query("FROM Task task ORDER BY task.created DESC", Task.class);
+    public Collection<Task> findAllOrderByDateTime(User user) {
+        return crudRepository.query("FROM Task task WHERE task.user = :fUser ORDER BY task.created DESC",
+                Task.class,
+                Map.of("fUser", user));
     }
 
     /**
@@ -130,8 +138,10 @@ public class HibernateTaskStore implements TaskStore {
      * @return список выполненных задач.
      */
     @Override
-    public Collection<Task> findCompletedTasks() {
-        return crudRepository.query("FROM Task task WHERE task.done = true", Task.class);
+    public Collection<Task> findCompletedTasks(User user) {
+        return crudRepository.query("FROM Task task WHERE task.done = true AND task.user = :fUser",
+                Task.class,
+                Map.of("fUser", user));
     }
 
     /**
@@ -147,10 +157,11 @@ public class HibernateTaskStore implements TaskStore {
      * @return список новых задач.
      */
     @Override
-    public Collection<Task> findNewTasks() {
+    public Collection<Task> findNewTasks(User user) {
         return crudRepository.query(
-                "FROM Task task WHERE task.created > :lastTime", Task.class,
-                Map.of("lastTime", LocalDateTime.now().minusHours(2))
+                "FROM Task task WHERE task.created > :lastTime AND task.user = :fUser", Task.class,
+                Map.of("lastTime", LocalDateTime.now().minusHours(2),
+                        "fUser", user)
         );
     }
 
@@ -165,12 +176,16 @@ public class HibernateTaskStore implements TaskStore {
      * уже не новых задач.
      */
     @Override
-    public Collection<Task> findExpiredUncompletedTasks() {
+    public Collection<Task> findExpiredUncompletedTasks(User user) {
         String hql = """
-                FROM Task task WHERE task.created < :lastTime AND task.done = false
+                FROM Task task 
+                WHERE task.created < :lastTime 
+                AND task.done = false
+                AND task.user = :fUser
                 """;
         return crudRepository.query(hql, Task.class,
-                Map.of("lastTime", LocalDateTime.now().minusHours(2))
+                Map.of("lastTime", LocalDateTime.now().minusHours(2),
+                        "fUser", user)
         );
     }
 

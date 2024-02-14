@@ -3,6 +3,7 @@ package ru.job4j.todo.service;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import ru.job4j.todo.model.Task;
+import ru.job4j.todo.model.User;
 import ru.job4j.todo.persistence.TaskStore;
 
 import java.util.Collection;
@@ -40,9 +41,18 @@ public class SimpleTaskService implements TaskService {
         taskStore.delete(taskId);
     }
 
+    /**
+     * Найти все задачи.
+     *
+     * Выводятся все задачи залогиненого
+     * пользователя.
+     *
+     * @param user залогиненый в системе пользователь
+     * @return список задач
+     */
     @Override
-    public Collection<Task> findAllOrderByDateTime() {
-        return taskStore.findAllOrderByDateTime();
+    public Collection<Task> findAllOrderByDateTime(User user) {
+        return taskStore.findAllOrderByDateTime(user);
     }
 
     @Override
@@ -51,18 +61,18 @@ public class SimpleTaskService implements TaskService {
     }
 
     @Override
-    public Collection<Task> findCompletedTasks() {
-        return taskStore.findCompletedTasks();
+    public Collection<Task> findCompletedTasks(User user) {
+        return taskStore.findCompletedTasks(user);
     }
 
     @Override
-    public Collection<Task> findNewTasks() {
-        return taskStore.findNewTasks();
+    public Collection<Task> findNewTasks(User user) {
+        return taskStore.findNewTasks(user);
     }
 
     @Override
-    public Collection<Task> findExpiredUncompletedTasks() {
-        return taskStore.findExpiredUncompletedTasks();
+    public Collection<Task> findExpiredUncompletedTasks(User user) {
+        return taskStore.findExpiredUncompletedTasks(user);
     }
 
     @Override
