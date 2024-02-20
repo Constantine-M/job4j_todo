@@ -154,10 +154,7 @@ public class TaskController {
      * приоритет не задать - получим NPE.
      */
     @PostMapping("/update")
-    public String update(@ModelAttribute Task task,
-                         @RequestParam("priorityId") int id) {
-        var priorityOptional = priorityService.findById(id);
-        task.setPriority(priorityOptional.get());
+    public String update(@ModelAttribute Task task) {
         taskService.update(task);
         return "redirect:/tasks";
     }
@@ -190,10 +187,7 @@ public class TaskController {
      */
     @PostMapping("/create")
     public String create(@ModelAttribute Task task,
-                         @RequestParam("priorityId") int id,
                          @SessionAttribute User user) {
-        var priorityOptional = priorityService.findById(id);
-        task.setPriority(priorityOptional.get());
         task.setUser(user);
         taskService.create(task);
         return "redirect:/tasks";

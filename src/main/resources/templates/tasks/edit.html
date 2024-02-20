@@ -79,7 +79,7 @@
                                     <label for="description" class="form-label"><b>Priority</b></label>
                                 </div>
                                 <div class="col-10">
-                                    <select class="form-control" id="priority" name="priorityId">
+                                    <select class="form-control" id="priority" name="priority.id">
                                         <option th:each="priority : ${priorities}" th:value="${priority.id}" th:text="${priority.name}" th:selected="${priority.id}"></option>
                                     </select>
                                 </div>

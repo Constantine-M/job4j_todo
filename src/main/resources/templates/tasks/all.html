@@ -124,9 +124,11 @@
                                         <div class="col-4">
                                             <!--    В данном блоке происходит выбор приоритета задачи и передача
                                                     объекта Priority с фронта на бэкэнд. Далее контроллер TaskController
-                                                    обрабатывает запрос и ловит ID приоритета с помощью аннотации
-                                                    @RequestParam. Поиск происходит по имени priorityId-->
-                                            <select class="form-control" id="priority" name="priorityId">
+                                                    обрабатывает запрос, в котором содержится объект Priority,
+                                                    который мы передаем, указав name="priority.id". В контроллере
+                                                    дополнительных манипуляций проделывать не нужно - Spring все
+                                                    сделает за нас-->
+                                            <select class="form-control" id="priority" name="priority.id">
                                                 <option th:each="priority : ${priorities}" th:value="${priority.id}" th:text="${priority.name}" th:selected="${priority.id}"></option>
                                             </select>
                                         </div>

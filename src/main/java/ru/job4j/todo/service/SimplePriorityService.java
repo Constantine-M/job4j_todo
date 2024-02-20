@@ -6,7 +6,6 @@ import ru.job4j.todo.model.Priority;
 import ru.job4j.todo.persistence.PriorityStore;
 
 import java.util.Collection;
-import java.util.Optional;
 
 /**
  * @author Constantine on 18.02.2024
@@ -20,10 +19,5 @@ public class SimplePriorityService implements PriorityService {
     @Override
     public Collection<Priority> findAll() {
         return priorityStore.findAll();
-    }
-
-    @Override
-    public Optional<Priority> findById(int id) {
-        return priorityStore.findById(id);
     }
 }
