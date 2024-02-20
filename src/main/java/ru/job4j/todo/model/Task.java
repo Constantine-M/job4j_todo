@@ -1,5 +1,6 @@
 package ru.job4j.todo.model;
 
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -27,6 +28,7 @@ import java.time.LocalDateTime;
 @Table(name = "tasks")
 @Entity
 @NoArgsConstructor
+@AllArgsConstructor
 @Getter
 @Setter
 public class Task {
@@ -64,12 +66,13 @@ public class Task {
     @JoinColumn(name = "user_id")
     private User user;
 
-    public Task(int id, LocalDateTime created, String title, String description, boolean done, User user) {
-        this.id = id;
-        this.created = created;
-        this.title = title;
-        this.description = description;
-        this.done = done;
-        this.user = user;
-    }
+    /**
+     * В данном проекте мы использовали
+     * стратегию ленивой загрузки для
+     * демонстрации решения вытекающей
+     * проблемы {@link org.hibernate.LazyInitializationException}.
+     */
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "priority_id")
+    private Priority priority;
 }

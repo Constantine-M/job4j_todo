@@ -10,7 +10,8 @@ This is a classic TODO web application with basic functionality:
 - add task
 - update task (in progress -> complete)
 - delete task
-- display only completed tasks/only new tasks/all tasks
+- display only completed tasks/only new tasks/all tasks attached to user
+- set priority for different task
 
 In this project we applied the Command pattern to simplify out code.
 

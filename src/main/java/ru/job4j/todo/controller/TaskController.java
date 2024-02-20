@@ -4,8 +4,10 @@ import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import ru.job4j.todo.model.Priority;
 import ru.job4j.todo.model.Task;
 import ru.job4j.todo.model.User;
+import ru.job4j.todo.service.PriorityService;
 import ru.job4j.todo.service.TaskService;
 
 /**
@@ -24,6 +26,8 @@ import ru.job4j.todo.service.TaskService;
 public class TaskController {
 
     private final TaskService taskService;
+
+    private final PriorityService priorityService;
 
     /**
      * Данный метод обрабатывает запрос
@@ -45,6 +49,7 @@ public class TaskController {
     public String getAllTasks(Model model,
                               @SessionAttribute User user) {
         model.addAttribute("tasks", taskService.findAllOrderByDateTime(user));
+        model.addAttribute("priorities", priorityService.findAll());
         return "tasks/all";
     }
 
@@ -89,6 +94,7 @@ public class TaskController {
             model.addAttribute("error", String.format("Task with ID %s not found!", id));
             return "errors/404";
         }
+        model.addAttribute("priorities", priorityService.findAll());
         model.addAttribute("task", taskOptional.get());
         return "tasks/edit";
     }
@@ -101,6 +107,7 @@ public class TaskController {
     public String getCompletedTasks(Model model,
                                     @SessionAttribute User user) {
         model.addAttribute("completed", taskService.findCompletedTasks(user));
+        model.addAttribute("priorities", priorityService.findAll());
         return "tasks/completed";
     }
 
@@ -113,6 +120,7 @@ public class TaskController {
     public String getExpiredUncompletedTasks(Model model,
                                              @SessionAttribute User user) {
         model.addAttribute("expired", taskService.findExpiredUncompletedTasks(user));
+        model.addAttribute("priorities", priorityService.findAll());
         return "tasks/expired";
     }
 
@@ -127,6 +135,7 @@ public class TaskController {
     public String getNewTasks(Model model,
                               @SessionAttribute User user) {
         model.addAttribute("newTasks", taskService.findNewTasks(user));
+        model.addAttribute("priorities", priorityService.findAll());
         return "tasks/new";
     }
 
@@ -138,9 +147,17 @@ public class TaskController {
      * Если обновляемая задача не будет найдена,
      * то пользовател будет перенаправлен
      * на страницу с текстом ошибки.
+     *
+     * Для обновления задачи требуется
+     * задать приоритет, который получили
+     * в запросе от пользователя. Если
+     * приоритет не задать - получим NPE.
      */
     @PostMapping("/update")
-    public String update(@ModelAttribute Task task) {
+    public String update(@ModelAttribute Task task,
+                         @RequestParam("priorityId") int id) {
+        var priorityOptional = priorityService.findById(id);
+        task.setPriority(priorityOptional.get());
         taskService.update(task);
         return "redirect:/tasks";
     }
@@ -160,10 +177,23 @@ public class TaskController {
      * В нашем случае это пользователь.
      * Аннотация прописывается в параметрах
      * метода.
+     *
+     * Чтобы извлечь {@link Priority}
+     * из запроса, который прилетает с фронта,
+     * используем аннотацию {@link RequestParam}.
+     * Поиск параметра производится по
+     * ключевому слову "priorityId", который
+     * определен в представлении all.html:
+     * class="form-control" id="priority" name="priorityId".
+     * Находим приоритет по ID и присваиваем
+     * задаче.
      */
     @PostMapping("/create")
     public String create(@ModelAttribute Task task,
+                         @RequestParam("priorityId") int id,
                          @SessionAttribute User user) {
+        var priorityOptional = priorityService.findById(id);
+        task.setPriority(priorityOptional.get());
         task.setUser(user);
         taskService.create(task);
         return "redirect:/tasks";

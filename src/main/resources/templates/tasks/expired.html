@@ -71,6 +71,17 @@
                         <row class="h5" th:case="true" th:text="'complete'"></row>
                         <row class="h5" th:case="false" th:text="'in progress'"></row>
                     </td>
+                    <!--    Данный блок окрашивает текст в зависимости от приоритета.
+                                Если приоритет "urgently", то значит это важно и текст соответственно
+                                окрашивается красным цветом. Всего в нашем ассортименте 2 приоритета-->
+                    <td style="font-size: 16px" th:switch="${task.priority.name}">
+                        <row class="h5" th:case="'urgently'">
+                            <row class="h5 text-danger" th:text="${task.priority.name}"></row>
+                        </row>
+                        <row class="h5" th:case="'normal'">
+                            <row class="h5 text-warning" th:text="${task.priority.name}"></row>
+                        </row>
+                    </td>
                     <td style="font-size: 16px">
                         <row class="h5" th:text="${task.getUser().name}"></row>
                     </td>

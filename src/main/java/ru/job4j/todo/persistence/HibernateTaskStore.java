@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import org.hibernate.Session;
 import org.hibernate.event.spi.PersistEventListener;
 import org.springframework.stereotype.Repository;
+import ru.job4j.todo.model.Priority;
 import ru.job4j.todo.model.Task;
 import ru.job4j.todo.model.User;
 
@@ -80,13 +81,16 @@ public class HibernateTaskStore implements TaskStore {
     public void update(Task task) {
         String hql = """
                 UPDATE Task as task
-                SET task.title = :fTitle, task.description = :fDesc
+                SET task.title = :fTitle, task.description = :fDesc, task.priority = :fPriority
                 WHERE task.id = :fId
                 """;
         crudRepository.run(hql,
                 Map.of("fTitle", task.getTitle(),
                         "fDesc", task.getDescription(),
-                        "fId", task.getId()));
+                        "fId", task.getId(),
+                        "fPriority", task.getPriority()
+                )
+        );
     }
 
     /**
@@ -108,13 +112,25 @@ public class HibernateTaskStore implements TaskStore {
      * пользователя, требуется его передать
      * в метод. Пользователя будем брать из сессии.
      *
+     * JOIN FETCH в запросе позволяет сразу
+     * загружать приоритет в БД. На текущий
+     * момент он загружается не сразу, т.к.
+     * мы с целью демонстрации возможностей Hibernate
+     * выставили в {@link Priority}
+     * стратегию ленивой загрузки - LAZY.
+     *
      * @param user залогиненый пользователь
      * @return список задач, упорядоченный по времени.
      */
     @Override
     public Collection<Task> findAllOrderByDateTime(User user) {
-        return crudRepository.query("FROM Task task WHERE task.user = :fUser ORDER BY task.created DESC",
-                Task.class,
+        String hql = """
+                    FROM Task task 
+                    JOIN FETCH task.priority 
+                    WHERE task.user = :fUser 
+                    ORDER BY task.created DESC
+                    """;
+        return crudRepository.query(hql, Task.class,
                 Map.of("fUser", user));
     }
 
@@ -127,7 +143,7 @@ public class HibernateTaskStore implements TaskStore {
     @Override
     public Optional<Task> findById(int taskId) {
         return crudRepository.optional(
-                "FROM Task task WHERE task.id = :fId", Task.class,
+                "FROM Task task JOIN FETCH task.priority WHERE task.id = :fId", Task.class,
                 Map.of("fId", taskId)
         );
     }
@@ -139,8 +155,13 @@ public class HibernateTaskStore implements TaskStore {
      */
     @Override
     public Collection<Task> findCompletedTasks(User user) {
-        return crudRepository.query("FROM Task task WHERE task.done = true AND task.user = :fUser",
-                Task.class,
+        String hql = """
+                    FROM Task task 
+                    JOIN FETCH task.priority 
+                    WHERE task.done = true 
+                    AND task.user = :fUser
+                    """;
+        return crudRepository.query(hql, Task.class,
                 Map.of("fUser", user));
     }
 
@@ -158,8 +179,13 @@ public class HibernateTaskStore implements TaskStore {
      */
     @Override
     public Collection<Task> findNewTasks(User user) {
-        return crudRepository.query(
-                "FROM Task task WHERE task.created > :lastTime AND task.user = :fUser", Task.class,
+        String hql = """
+                    FROM Task task
+                    JOIN FETCH task.priority
+                    WHERE task.created > :lastTime
+                    AND task.user = :fUser
+                    """;
+        return crudRepository.query(hql, Task.class,
                 Map.of("lastTime", LocalDateTime.now().minusHours(2),
                         "fUser", user)
         );
@@ -179,6 +205,7 @@ public class HibernateTaskStore implements TaskStore {
     public Collection<Task> findExpiredUncompletedTasks(User user) {
         String hql = """
                 FROM Task task 
+                JOIN FETCH task.priority
                 WHERE task.created < :lastTime 
                 AND task.done = false
                 AND task.user = :fUser

@@ -43,6 +43,7 @@
                         <th scope="col"></th>
                         <th scope="col"></th>
                         <th scope="col"></th>
+                        <th scope="col"></th>
                     </tr>
                     </thead>
                     <tbody>
@@ -69,6 +70,17 @@
                         <td style="font-size: 16px" th:switch="${task.isDone()}">
                                 <row class="h5" th:case="true" th:text="'complete'"></row>
                                 <row class="h5" th:case="false" th:text="'in progress'"></row>
+                        </td>
+                        <!--    Данный блок окрашивает текст в зависимости от приоритета.
+                                Если приоритет "urgently", то значит это важно и текст соответственно
+                                окрашивается красным цветом. Всего в нашем ассортименте 2 приоритета-->
+                        <td style="font-size: 16px" th:switch="${task.priority.name}">
+                            <row class="h5" th:case="'urgently'">
+                                <row class="h5 text-danger" th:text="${task.priority.name}"></row>
+                            </row>
+                            <row class="h5" th:case="'normal'">
+                                <row class="h5 text-warning" th:text="${task.priority.name}"></row>
+                            </row>
                         </td>
                         <td style="font-size: 16px">
                             <row class="h5" th:text="${task.getUser().name}"></row>
@@ -106,6 +118,19 @@
                                     <div class="mb-3">
                                         <label for="description" class="col-form-label">Description</label>
                                         <textarea class="form-control" id="description" name="description" style="height: 100px" placeholder="Describe your task in detail"></textarea>
+                                    </div>
+                                    <div class="row mb-3">
+                                        <div class="col-2">Task priority</div>
+                                        <div class="col-4">
+                                            <!--    В данном блоке происходит выбор приоритета задачи и передача
+                                                    объекта Priority с фронта на бэкэнд. Далее контроллер TaskController
+                                                    обрабатывает запрос и ловит ID приоритета с помощью аннотации
+                                                    @RequestParam. Поиск происходит по имени priorityId-->
+                                            <select class="form-control" id="priority" name="priorityId">
+                                                <option th:each="priority : ${priorities}" th:value="${priority.id}" th:text="${priority.name}" th:selected="${priority.id}"></option>
+                                            </select>
+                                        </div>
+                                        <div class="col-6"></div>
                                     </div>
                             </div>
                             <div class="modal-footer">
