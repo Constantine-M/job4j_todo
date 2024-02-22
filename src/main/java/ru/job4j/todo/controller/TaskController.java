@@ -7,8 +7,9 @@ import org.springframework.web.bind.annotation.*;
 import ru.job4j.todo.model.Priority;
 import ru.job4j.todo.model.Task;
 import ru.job4j.todo.model.User;
-import ru.job4j.todo.service.PriorityService;
-import ru.job4j.todo.service.TaskService;
+import ru.job4j.todo.service.category.CategoryService;
+import ru.job4j.todo.service.priority.PriorityService;
+import ru.job4j.todo.service.task.TaskService;
 
 /**
  * Данный класс находится в слое
@@ -28,6 +29,8 @@ public class TaskController {
     private final TaskService taskService;
 
     private final PriorityService priorityService;
+
+    private final CategoryService categoryService;
 
     /**
      * Данный метод обрабатывает запрос
@@ -50,6 +53,7 @@ public class TaskController {
                               @SessionAttribute User user) {
         model.addAttribute("tasks", taskService.findAllOrderByDateTime(user));
         model.addAttribute("priorities", priorityService.findAll());
+        model.addAttribute("categories", categoryService.findAll());
         return "tasks/all";
     }
 

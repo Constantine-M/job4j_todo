@@ -1,10 +1,10 @@
-package ru.job4j.todo.service;
+package ru.job4j.todo.service.user;
 
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import ru.job4j.todo.model.User;
-import ru.job4j.todo.persistence.HIbernateUserStore;
-import ru.job4j.todo.persistence.UserStore;
+import ru.job4j.todo.persistence.user.HIbernateUserStore;
+import ru.job4j.todo.persistence.user.UserStore;
 
 import java.util.Optional;
 

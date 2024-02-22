@@ -35,10 +35,18 @@
         <!--    С помощью тега <header> и атрибута insert мы вставляем общий компонент страницы (блок навигации, который мы вынесли отдельно)-->
         <header th:insert="blocks/header :: header"></header>
         <div class="container">
+<!--            <div class="row h5" style="font-size: 16px">-->
+<!--                <span>All user</span>-->
+<!--                <span>-->
+<!--                     <span th:text="${user.name}"/>-->
+<!--                </span>-->
+<!--                <span>'s tasks:</span>-->
+<!--            </div>-->
             <div class="row">
                 <table class="table table-stripped table-borderless table-hover">
                     <thead>
                     <tr>
+                        <th scope="col"></th>
                         <th scope="col"></th>
                         <th scope="col"></th>
                         <th scope="col"></th>
@@ -84,6 +92,22 @@
                         </td>
                         <td style="font-size: 16px">
                             <row class="h5" th:text="${task.getUser().name}"></row>
+                        </td>
+                        <!--    Блок кода ниже относится к категориями, которые я отображу также в виде таблицы,
+                                но внутри одной из ячеек нашей большой таблицы задач-->
+                        <td style="font-size: 16px" th:text="${task.categories}">
+<!--                            <table class="table table-borderless">-->
+<!--                                <thead>-->
+<!--                                    <tr>-->
+<!--                                        <th scope="col"></th>-->
+<!--                                    </tr>-->
+<!--                                </thead>-->
+<!--                                <tbody>-->
+<!--                                    <tr th:each="category: ${task.categories}">-->
+<!--                                        <td th:text="${category.name}"></td>-->
+<!--                                    </tr>-->
+<!--                                </tbody>-->
+<!--                            </table>-->
                         </td>
                     </tr>
                     </tbody>

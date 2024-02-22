@@ -1,4 +1,4 @@
-package ru.job4j.todo.service;
+package ru.job4j.todo.service.user;
 
 import ru.job4j.todo.model.User;
 

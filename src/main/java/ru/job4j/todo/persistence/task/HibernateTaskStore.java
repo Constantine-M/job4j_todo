@@ -1,4 +1,4 @@
-package ru.job4j.todo.persistence;
+package ru.job4j.todo.persistence.task;
 
 import lombok.AllArgsConstructor;
 import org.hibernate.Session;
@@ -7,6 +7,7 @@ import org.springframework.stereotype.Repository;
 import ru.job4j.todo.model.Priority;
 import ru.job4j.todo.model.Task;
 import ru.job4j.todo.model.User;
+import ru.job4j.todo.persistence.CrudRepository;
 
 import javax.persistence.PersistenceException;
 import java.time.LocalDateTime;
@@ -125,9 +126,9 @@ public class HibernateTaskStore implements TaskStore {
     @Override
     public Collection<Task> findAllOrderByDateTime(User user) {
         String hql = """
-                    FROM Task task 
-                    JOIN FETCH task.priority 
-                    WHERE task.user = :fUser 
+                    FROM Task task
+                    JOIN FETCH task.priority LEFT JOIN FETCH task.categories
+                    WHERE task.user = :fUser
                     ORDER BY task.created DESC
                     """;
         return crudRepository.query(hql, Task.class,

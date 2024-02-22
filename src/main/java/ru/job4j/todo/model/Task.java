@@ -7,6 +7,8 @@ import lombok.Setter;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Чтобы наша энтити увидела таблицу,
@@ -75,4 +77,27 @@ public class Task {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "priority_id")
     private Priority priority;
+
+    /**
+     * В проекте будет односторонняя связь
+     * ManyToMany между задачами и категориями.
+     *
+     * Главным в этой связи будет Task. Т.е.
+     * при удалении Task, удаляется также и
+     * связь между Task и промежуточной таблицей,
+     * а категория и ее связь с промежуточной
+     * таблицей остается.
+     *
+     * {@link Task} - это родительский объект
+     * (joinColumns)
+     * {@link Category} - это объект, который загружаем
+     * в Task (inverseJoinColumns)
+     */
+    @ManyToMany
+    @JoinTable(
+            name = "task_category",
+            joinColumns = {@JoinColumn(name = "task_id")},
+            inverseJoinColumns = {@JoinColumn(name = "category_id")}
+    )
+    private List<Category> categories = new ArrayList<>();
 }

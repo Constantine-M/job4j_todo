@@ -1,4 +1,4 @@
-package ru.job4j.todo.persistence;
+package ru.job4j.todo.persistence.user;
 
 import ru.job4j.todo.model.User;
 

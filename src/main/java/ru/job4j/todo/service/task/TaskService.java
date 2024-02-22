@@ -1,4 +1,4 @@
-package ru.job4j.todo.persistence;
+package ru.job4j.todo.service.task;
 
 import ru.job4j.todo.model.Task;
 import ru.job4j.todo.model.User;
@@ -6,7 +6,10 @@ import ru.job4j.todo.model.User;
 import java.util.Collection;
 import java.util.Optional;
 
-public interface TaskStore {
+/**
+ * @author Constantine on 22.01.2024
+ */
+public interface TaskService {
 
     Task create(Task task);
 

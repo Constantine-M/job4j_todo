@@ -1,4 +1,4 @@
-package ru.job4j.todo.persistence;
+package ru.job4j.todo.persistence.priority;
 
 import ru.job4j.todo.model.Priority;
 

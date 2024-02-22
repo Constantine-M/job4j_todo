@@ -1,9 +1,10 @@
-package ru.job4j.todo.persistence;
+package ru.job4j.todo.persistence.user;
 
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Repository;
 import ru.job4j.todo.model.User;
+import ru.job4j.todo.persistence.CrudRepository;
 
 import java.util.Map;
 import java.util.Optional;
