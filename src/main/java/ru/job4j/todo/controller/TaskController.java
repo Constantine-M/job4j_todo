@@ -4,12 +4,15 @@ import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import ru.job4j.todo.model.Category;
 import ru.job4j.todo.model.Priority;
 import ru.job4j.todo.model.Task;
 import ru.job4j.todo.model.User;
 import ru.job4j.todo.service.category.CategoryService;
 import ru.job4j.todo.service.priority.PriorityService;
 import ru.job4j.todo.service.task.TaskService;
+
+import java.util.List;
 
 /**
  * Данный класс находится в слое
@@ -51,10 +54,45 @@ public class TaskController {
     @GetMapping
     public String getAllTasks(Model model,
                               @SessionAttribute User user) {
-        model.addAttribute("tasks", taskService.findAllOrderByDateTime(user));
+        var tasks = taskService.findAllOrderByDateTime(user);
+        model.addAttribute("tasks", tasks);
         model.addAttribute("priorities", priorityService.findAll());
         model.addAttribute("categories", categoryService.findAll());
         return "tasks/all";
+    }
+
+    /**
+     * Данный метод обрабатывает запрос на
+     * создание задачи.
+     *
+     * Прежде, чем отправить POST запрос
+     * на создание задачи, добавим в задачу
+     * информацию о том, к какому пользователю
+     * данная задача будет прикреплена.
+     *
+     * Для этого мы воспользовались аннотацией
+     * {@link SessionAttribute}, которая
+     * позволяет хранить в сессии объекты.
+     * В нашем случае это пользователь.
+     * Аннотация прописывается в параметрах
+     * метода.
+     *
+     * Чтобы извлечь {@link Priority}
+     * из запроса, который прилетает с фронта,
+     * используем аннотацию {@link RequestParam}.
+     * Поиск параметра производится по
+     * ключевому слову "priorityId", который
+     * определен в представлении all.html:
+     * class="form-control" id="priority" name="priorityId".
+     * Находим приоритет по ID и присваиваем
+     * задаче.
+     */
+    @PostMapping("/create")
+    public String create(@ModelAttribute Task task,
+                         @SessionAttribute User user) {
+        task.setUser(user);
+        taskService.create(task);
+        return "redirect:/tasks";
     }
 
     /**
@@ -160,40 +198,6 @@ public class TaskController {
     @PostMapping("/update")
     public String update(@ModelAttribute Task task) {
         taskService.update(task);
-        return "redirect:/tasks";
-    }
-
-    /**
-     * Данный метод обрабатывает запрос на
-     * создание задачи.
-     *
-     * Прежде, чем отправить POST запрос
-     * на создание задачи, добавим в задачу
-     * информацию о том, к какому пользователю
-     * данная задача будет прикреплена.
-     *
-     * Для этого мы воспользовались аннотацией
-     * {@link SessionAttribute}, которая
-     * позволяет хранить в сессии объекты.
-     * В нашем случае это пользователь.
-     * Аннотация прописывается в параметрах
-     * метода.
-     *
-     * Чтобы извлечь {@link Priority}
-     * из запроса, который прилетает с фронта,
-     * используем аннотацию {@link RequestParam}.
-     * Поиск параметра производится по
-     * ключевому слову "priorityId", который
-     * определен в представлении all.html:
-     * class="form-control" id="priority" name="priorityId".
-     * Находим приоритет по ID и присваиваем
-     * задаче.
-     */
-    @PostMapping("/create")
-    public String create(@ModelAttribute Task task,
-                         @SessionAttribute User user) {
-        task.setUser(user);
-        taskService.create(task);
         return "redirect:/tasks";
     }
 

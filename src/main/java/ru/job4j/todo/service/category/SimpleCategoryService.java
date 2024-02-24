@@ -20,4 +20,9 @@ public class SimpleCategoryService implements CategoryService {
     public Collection<Category> findAll() {
         return categoryStore.findAll();
     }
+
+    @Override
+    public Category findById(int id) {
+        return categoryStore.findById(id);
+    }
 }

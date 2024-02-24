@@ -100,4 +100,8 @@ public class Task {
             inverseJoinColumns = {@JoinColumn(name = "category_id")}
     )
     private List<Category> categories = new ArrayList<>();
+
+    public void addCategory(Category category) {
+        categories.add(category);
+    }
 }

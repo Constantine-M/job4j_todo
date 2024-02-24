@@ -127,7 +127,7 @@ public class HibernateTaskStore implements TaskStore {
     public Collection<Task> findAllOrderByDateTime(User user) {
         String hql = """
                     FROM Task task
-                    JOIN FETCH task.priority LEFT JOIN FETCH task.categories
+                    JOIN FETCH task.priority JOIN FETCH task.categories
                     WHERE task.user = :fUser
                     ORDER BY task.created DESC
                     """;

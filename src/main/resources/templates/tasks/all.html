@@ -35,18 +35,17 @@
         <!--    С помощью тега <header> и атрибута insert мы вставляем общий компонент страницы (блок навигации, который мы вынесли отдельно)-->
         <header th:insert="blocks/header :: header"></header>
         <div class="container">
-<!--            <div class="row h5" style="font-size: 16px">-->
-<!--                <span>All user</span>-->
-<!--                <span>-->
-<!--                     <span th:text="${user.name}"/>-->
-<!--                </span>-->
-<!--                <span>'s tasks:</span>-->
-<!--            </div>-->
+            <!--    В данном блоке мы укажем, кому принадлежат все задачи, указанные в таблице.
+                    Тем самым избавимся от лишнего столбца, загромождающего таблицу-->
+            <div class="row h5 mt-5" style="font-size: 18px">
+                <p>Complete list of <</p>
+                <p th:text="${user.name}"></p>
+                <p>>'s tasks:</p>
+            </div>
             <div class="row">
                 <table class="table table-stripped table-borderless table-hover">
                     <thead>
                     <tr>
-                        <th scope="col"></th>
                         <th scope="col"></th>
                         <th scope="col"></th>
                         <th scope="col"></th>
@@ -90,24 +89,8 @@
                                 <row class="h5 text-warning" th:text="${task.priority.name}"></row>
                             </row>
                         </td>
-                        <td style="font-size: 16px">
-                            <row class="h5" th:text="${task.getUser().name}"></row>
-                        </td>
-                        <!--    Блок кода ниже относится к категориями, которые я отображу также в виде таблицы,
-                                но внутри одной из ячеек нашей большой таблицы задач-->
-                        <td style="font-size: 16px" th:text="${task.categories}">
-<!--                            <table class="table table-borderless">-->
-<!--                                <thead>-->
-<!--                                    <tr>-->
-<!--                                        <th scope="col"></th>-->
-<!--                                    </tr>-->
-<!--                                </thead>-->
-<!--                                <tbody>-->
-<!--                                    <tr th:each="category: ${task.categories}">-->
-<!--                                        <td th:text="${category.name}"></td>-->
-<!--                                    </tr>-->
-<!--                                </tbody>-->
-<!--                            </table>-->
+                        <td style="font-size: 16px" th:each="category: ${task.categories}">
+                            <span class="h5" th:text="${category.name}"></span>
                         </td>
                     </tr>
                     </tbody>
@@ -144,8 +127,8 @@
                                         <textarea class="form-control" id="description" name="description" style="height: 100px" placeholder="Describe your task in detail"></textarea>
                                     </div>
                                     <div class="row mb-3">
-                                        <div class="col-2">Task priority</div>
-                                        <div class="col-4">
+                                        <div class="col-1">Priority</div>
+                                        <div class="col-5">
                                             <!--    В данном блоке происходит выбор приоритета задачи и передача
                                                     объекта Priority с фронта на бэкэнд. Далее контроллер TaskController
                                                     обрабатывает запрос, в котором содержится объект Priority,
@@ -156,7 +139,18 @@
                                                 <option th:each="priority : ${priorities}" th:value="${priority.id}" th:text="${priority.name}" th:selected="${priority.id}"></option>
                                             </select>
                                         </div>
-                                        <div class="col-6"></div>
+                                        <div class="col-1">Category</div>
+                                        <div class="col-5">
+<!--                                            <select class="form-control" multiple aria-label="" id="categories" name="category.id">-->
+<!--                                                <option th:each="category, rowStat : ${categories}" th:field="*{categories[__${rowStat.index}__].id}" th:value="${category.id}" th:text="${category.name}" th:selected="${category.id}"></option>-->
+<!--                                            </select>-->
+<!--                                            <select class="form-control" multiple aria-label="" id="categories" name="categories">-->
+<!--                                                <option th:each="category : ${categories}" th:field="${categories}" th:value="${category}" th:text="${category.name}" th:selected="${category.id}"></option>-->
+                                            </select>
+                                            <select class="form-control" multiple aria-label="" id="categories" name="category.id">
+                                                <option th:each="category : ${categories}" th:value="${category.id}" th:text="${category.name}" th:selected="${category.id}"></option>
+                                            </select>
+                                        </div>
                                     </div>
                             </div>
                             <div class="modal-footer">
