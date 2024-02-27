@@ -34,23 +34,14 @@
 <div class="container-fluid p-0">
     <!--    С помощью тега <header> и атрибута insert мы вставляем общий компонент страницы (блок навигации, который мы вынесли отдельно)-->
     <header th:insert="blocks/header :: header"></header>
-    <div class="container">
+    <div class="container mt-5">
         <div class="row">
-            <table class="table table-stripped table-borderless table-hover">
-                <thead>
-                <tr>
-                    <th scope="col"></th>
-                    <th scope="col"></th>
-                    <th scope="col"></th>
-                    <th scope="col"></th>
-                </tr>
-                </thead>
+            <table class="table table-stripped">
                 <tbody>
                 <tr th:each="task: ${newTasks}">
                     <!--    <td> обозначает ячеку таблицы. В этой ячейке можно
                             вносить инфу по строкам. <row> обозначает строку в таблице.
-                            Так мы в одной строке уместили год, жанр, длительность фильма
-                            и пр. аттрибуты. Тег <span> можно использовать для текста.
+                            Тег <span> можно использовать для текста.
                             Для всей ячейки мы задали стиль. Собсно стиль заключается
                             в размере шрифта.-->
                     <td style="font-size: 16px">
@@ -81,8 +72,18 @@
                             <row class="h5 text-warning" th:text="${task.priority.name}"></row>
                         </row>
                     </td>
-                    <td style="font-size: 16px">
-                        <row class="h5" th:text="${task.getUser().name}"></row>
+                    <td>
+                        <!--    table-sm позволяет уменьшить отступы между ячейками в табалице.
+                                Т.о. таблица получается более компактной-->
+                        <table class="table-sm table-borderless">
+                            <tbody>
+                            <tr th:each="category: ${task.categories}">
+                                <td>
+                                    <row style="font-size: 16px" th:text="${category.name}"></row>
+                                </td>
+                            </tr>
+                            </tbody>
+                        </table>
                     </td>
                 </tr>
                 </tbody>

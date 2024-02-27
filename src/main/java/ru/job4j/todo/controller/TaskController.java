@@ -4,10 +4,10 @@ import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
-import ru.job4j.todo.model.Category;
 import ru.job4j.todo.model.Priority;
 import ru.job4j.todo.model.Task;
 import ru.job4j.todo.model.User;
+import ru.job4j.todo.persistence.task.HibernateTaskStore;
 import ru.job4j.todo.service.category.CategoryService;
 import ru.job4j.todo.service.priority.PriorityService;
 import ru.job4j.todo.service.task.TaskService;
@@ -54,8 +54,7 @@ public class TaskController {
     @GetMapping
     public String getAllTasks(Model model,
                               @SessionAttribute User user) {
-        var tasks = taskService.findAllOrderByDateTime(user);
-        model.addAttribute("tasks", tasks);
+        model.addAttribute("tasks", taskService.findAllOrderByDateTime(user));
         model.addAttribute("priorities", priorityService.findAll());
         model.addAttribute("categories", categoryService.findAll());
         return "tasks/all";
@@ -89,7 +88,10 @@ public class TaskController {
      */
     @PostMapping("/create")
     public String create(@ModelAttribute Task task,
-                         @SessionAttribute User user) {
+                         @SessionAttribute User user,
+                         @RequestParam(value = "categoryIds") List<Integer> categoryIds) {
+        var categories = categoryService.findAllByIds(categoryIds).stream().toList();
+        task.setCategories(categories);
         task.setUser(user);
         taskService.create(task);
         return "redirect:/tasks";
@@ -138,7 +140,39 @@ public class TaskController {
         }
         model.addAttribute("priorities", priorityService.findAll());
         model.addAttribute("task", taskOptional.get());
+        model.addAttribute("categories", categoryService.findAll());
         return "tasks/edit";
+    }
+
+    /**
+     * Данный метод обрабытвает запрос на
+     * обновление задачи.
+     *
+     * Сперва производится поиск задачи.
+     * Если обновляемая задача не будет найдена,
+     * то пользовател будет перенаправлен
+     * на страницу с текстом ошибки.
+     *
+     * Обновить поле categories через HQL
+     * невозможно, поэтому мы взяли категории
+     * и назначили их задаче как в методе
+     * {@link TaskController#create}.
+     * А в {@link HibernateTaskStore#update}
+     * использовали обычный UPDATE.
+     * UPDATE обновляет все поля сущности,
+     * поэтому в {@link Task} мы использовали
+     * параметр updatable = false, чтобы не
+     * обновлять время.
+     */
+    @PostMapping("/update")
+    public String update(@ModelAttribute Task task,
+                         @RequestParam(value = "categoryIds") List<Integer> categoryIds,
+                         @SessionAttribute User user) {
+        var categories = categoryService.findAllByIds(categoryIds).stream().toList();
+        task.setCategories(categories);
+        task.setUser(user);
+        taskService.update(task);
+        return "redirect:/tasks";
     }
 
     /**
@@ -149,7 +183,6 @@ public class TaskController {
     public String getCompletedTasks(Model model,
                                     @SessionAttribute User user) {
         model.addAttribute("completed", taskService.findCompletedTasks(user));
-        model.addAttribute("priorities", priorityService.findAll());
         return "tasks/completed";
     }
 
@@ -162,7 +195,6 @@ public class TaskController {
     public String getExpiredUncompletedTasks(Model model,
                                              @SessionAttribute User user) {
         model.addAttribute("expired", taskService.findExpiredUncompletedTasks(user));
-        model.addAttribute("priorities", priorityService.findAll());
         return "tasks/expired";
     }
 
@@ -177,28 +209,7 @@ public class TaskController {
     public String getNewTasks(Model model,
                               @SessionAttribute User user) {
         model.addAttribute("newTasks", taskService.findNewTasks(user));
-        model.addAttribute("priorities", priorityService.findAll());
         return "tasks/new";
-    }
-
-    /**
-     * Данный метод обрабытвает запрос на
-     * обновление задачи.
-     *
-     * Сперва производится поиск задачи.
-     * Если обновляемая задача не будет найдена,
-     * то пользовател будет перенаправлен
-     * на страницу с текстом ошибки.
-     *
-     * Для обновления задачи требуется
-     * задать приоритет, который получили
-     * в запросе от пользователя. Если
-     * приоритет не задать - получим NPE.
-     */
-    @PostMapping("/update")
-    public String update(@ModelAttribute Task task) {
-        taskService.update(task);
-        return "redirect:/tasks";
     }
 
     /**

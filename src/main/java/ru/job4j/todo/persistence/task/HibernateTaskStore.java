@@ -73,25 +73,15 @@ public class HibernateTaskStore implements TaskStore {
      * {@link Session#merge} и {@link Session#update}
      * обновляют задачу полностью (все поля).
      * По ТЗ дата и время создания задачи не
-     * должно изменяться. Поэтому в данном методе
-     * был использован hql запрос.
+     * должно изменяться. Поэтому в модели
+     * {@link Task} мы над полем created
+     * использовали параметр "updatable=false".
      *
      * @param task задача.
      */
     @Override
     public void update(Task task) {
-        String hql = """
-                UPDATE Task as task
-                SET task.title = :fTitle, task.description = :fDesc, task.priority = :fPriority
-                WHERE task.id = :fId
-                """;
-        crudRepository.run(hql,
-                Map.of("fTitle", task.getTitle(),
-                        "fDesc", task.getDescription(),
-                        "fId", task.getId(),
-                        "fPriority", task.getPriority()
-                )
-        );
+        crudRepository.run(session -> session.update(task));
     }
 
     /**
@@ -120,12 +110,20 @@ public class HibernateTaskStore implements TaskStore {
      * выставили в {@link Priority}
      * стратегию ленивой загрузки - LAZY.
      *
+     * В случае связи Many-to-Many (и не только)
+     * есть проблема - задачи выводятся столько
+     * раз, сколько категорий связано с этой
+     * задачей. Это описано в статье на Baeldung
+     * "Distinct Queries in HQL". Чтобы избавиться
+     * от дублей добавим в запрос DISTINCT.
+     *
      * @param user залогиненый пользователь
      * @return список задач, упорядоченный по времени.
      */
     @Override
     public Collection<Task> findAllOrderByDateTime(User user) {
         String hql = """
+                    SELECT DISTINCT task
                     FROM Task task
                     JOIN FETCH task.priority JOIN FETCH task.categories
                     WHERE task.user = :fUser
@@ -143,8 +141,12 @@ public class HibernateTaskStore implements TaskStore {
      */
     @Override
     public Optional<Task> findById(int taskId) {
-        return crudRepository.optional(
-                "FROM Task task JOIN FETCH task.priority WHERE task.id = :fId", Task.class,
+        var hql = """
+                FROM Task task 
+                JOIN FETCH task.priority JOIN FETCH task.categories
+                WHERE task.id = :fId
+                """;
+        return crudRepository.optional(hql, Task.class,
                 Map.of("fId", taskId)
         );
     }
@@ -157,8 +159,9 @@ public class HibernateTaskStore implements TaskStore {
     @Override
     public Collection<Task> findCompletedTasks(User user) {
         String hql = """
+                    SELECT DISTINCT task
                     FROM Task task 
-                    JOIN FETCH task.priority 
+                    JOIN FETCH task.priority JOIN FETCH task.categories
                     WHERE task.done = true 
                     AND task.user = :fUser
                     """;
@@ -181,8 +184,9 @@ public class HibernateTaskStore implements TaskStore {
     @Override
     public Collection<Task> findNewTasks(User user) {
         String hql = """
+                    SELECT DISTINCT task
                     FROM Task task
-                    JOIN FETCH task.priority
+                    JOIN FETCH task.priority JOIN FETCH task.categories
                     WHERE task.created > :lastTime
                     AND task.user = :fUser
                     """;
@@ -205,8 +209,9 @@ public class HibernateTaskStore implements TaskStore {
     @Override
     public Collection<Task> findExpiredUncompletedTasks(User user) {
         String hql = """
+                SELECT DISTINCT task
                 FROM Task task 
-                JOIN FETCH task.priority
+                JOIN FETCH task.priority JOIN FETCH task.categories
                 WHERE task.created < :lastTime 
                 AND task.done = false
                 AND task.user = :fUser

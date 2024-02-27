@@ -40,7 +40,7 @@
                   при изменении формы меняется и наш объект. Через th:object указывает связываемый объект, а в th:field его поля    -->
             <form class="mt-5" style="font-size: 14px" th:action="@{/tasks/detail}" method="get" th:object="${task}">
                 <!--  Аттрибут th:field="*{поле}" также позволяют сделать двустороннее связывание нашего объекта и формы HTML.
-                      Мы на страницу выводим id, но делаем его скрытым (hidden). Это позволяет при обработке формы узнать какая вакансия меняется.
+                      Мы на страницу выводим id, но делаем его скрытым (hidden). Это позволяет при обработке формы узнать какая задача меняется.
                       Обрати внимание, если у тебя id в блоке <th:field="*{id}"> подсвечен, значит у тебя действия
                       проводятся не над объектом, а скорее всего над Optional<Task>. Проверь, чтобы в контроллере
                       возвращался именно объект, а не Optional.  -->
@@ -78,8 +78,20 @@
                                 <div class="col-2">
                                     <label for="description" class="form-label"><b>Priority</b></label>
                                 </div>
-                                <div class="col-10">
+                                <div class="col-4">
                                     <input type="text" class="form-control" id="priority" name="priority.id" th:field="*{priority.name}" disabled>
+                                </div>
+                                <div class="col-2">
+                                    <label for="description" class="form-label"><b>Categories: </b></label>
+                                </div>
+                                <div class="col-4">
+                                    <table class="table table-borderless table-sm">
+                                        <tbody>
+                                            <tr th:each="category: ${task.categories}">
+                                                <td th:text="${category.name}"></td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
                                 </div>
                             </div>
                         </div>

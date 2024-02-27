@@ -6,6 +6,7 @@ import ru.job4j.todo.model.Category;
 import ru.job4j.todo.persistence.category.CategoryStore;
 
 import java.util.Collection;
+import java.util.List;
 
 /**
  * @author Constantine on 21.02.2024
@@ -22,7 +23,7 @@ public class SimpleCategoryService implements CategoryService {
     }
 
     @Override
-    public Category findById(int id) {
-        return categoryStore.findById(id);
+    public Collection<Category> findAllByIds(List<Integer> ids) {
+        return categoryStore.findAllByIds(ids);
     }
 }

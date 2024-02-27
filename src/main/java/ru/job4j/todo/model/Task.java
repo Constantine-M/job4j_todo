@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.DynamicUpdate;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
@@ -33,6 +34,7 @@ import java.util.List;
 @AllArgsConstructor
 @Getter
 @Setter
+@DynamicUpdate
 public class Task {
 
     /**
@@ -51,7 +53,12 @@ public class Task {
      * Данное поле описывает время создания
      * объекта {@link Task} и по умолчанию
      * время = текущему времени.
+     *
+     * Чтобы данное поле не обновлялось во
+     * время обновления задачи, мы использовали
+     * параметр updatable.
      */
+    @Column(updatable = false)
     private LocalDateTime created = LocalDateTime.now();
 
     private String title;
@@ -64,6 +71,13 @@ public class Task {
      */
     private boolean done;
 
+    /**
+     * updatable=false выставить не удастся -
+     * выпадает предупреждение/ошибка
+     * "@Column(s) not allowed on a @ManyToOne property".
+     * Поэтому в методе обновления мы сетим
+     * юзера заново, иначе он зануляется.
+     */
     @ManyToOne
     @JoinColumn(name = "user_id")
     private User user;
@@ -100,8 +114,4 @@ public class Task {
             inverseJoinColumns = {@JoinColumn(name = "category_id")}
     )
     private List<Category> categories = new ArrayList<>();
-
-    public void addCategory(Category category) {
-        categories.add(category);
-    }
 }
