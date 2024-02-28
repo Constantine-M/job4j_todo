@@ -11,6 +11,7 @@ import ru.job4j.todo.persistence.CrudRepository;
 
 import javax.persistence.PersistenceException;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.Collection;
 import java.util.Map;
 import java.util.Optional;
@@ -179,6 +180,10 @@ public class HibernateTaskStore implements TaskStore {
      * Если задаче больше 2 часов, то
      * задача считается не новой.
      *
+     * Так как задачи сохраняются в БД с
+     * временем создания по UTC, то сранивать
+     * будем так же с текущим временем по UTC.
+     *
      * @return список новых задач.
      */
     @Override
@@ -190,8 +195,9 @@ public class HibernateTaskStore implements TaskStore {
                     WHERE task.created > :lastTime
                     AND task.user = :fUser
                     """;
+        var localDateTimeAtUTCZone = LocalDateTime.now(ZoneId.of("UTC"));
         return crudRepository.query(hql, Task.class,
-                Map.of("lastTime", LocalDateTime.now().minusHours(2),
+                Map.of("lastTime", localDateTimeAtUTCZone.minusHours(2),
                         "fUser", user)
         );
     }
@@ -202,6 +208,10 @@ public class HibernateTaskStore implements TaskStore {
      *
      * Если задаче больше 2 часов, то
      * задача считается не новой.
+     *
+     * Так как задачи сохраняются в БД с
+     * временем создания по UTC, то сранивать
+     * будем так же с текущим временем по UTC.
      *
      * @return список невыполненных и
      * уже не новых задач.
@@ -216,8 +226,9 @@ public class HibernateTaskStore implements TaskStore {
                 AND task.done = false
                 AND task.user = :fUser
                 """;
+        var localDateTimeAtUTCZone = LocalDateTime.now(ZoneId.of("UTC"));
         return crudRepository.query(hql, Task.class,
-                Map.of("lastTime", LocalDateTime.now().minusHours(2),
+                Map.of("lastTime", localDateTimeAtUTCZone.minusHours(2),
                         "fUser", user)
         );
     }

@@ -6,6 +6,7 @@ import ru.job4j.todo.model.Task;
 import ru.job4j.todo.model.User;
 import ru.job4j.todo.persistence.task.TaskStore;
 
+import java.time.ZoneId;
 import java.util.Collection;
 import java.util.Optional;
 
@@ -52,7 +53,9 @@ public class SimpleTaskService implements TaskService {
      */
     @Override
     public Collection<Task> findAllOrderByDateTime(User user) {
-        return taskStore.findAllOrderByDateTime(user);
+        var tasks = taskStore.findAllOrderByDateTime(user);
+        setDateTimeByUserTimezone(user, tasks);
+        return tasks;
     }
 
     @Override
@@ -62,21 +65,49 @@ public class SimpleTaskService implements TaskService {
 
     @Override
     public Collection<Task> findCompletedTasks(User user) {
-        return taskStore.findCompletedTasks(user);
+        var tasks = taskStore.findCompletedTasks(user);
+        setDateTimeByUserTimezone(user, tasks);
+        return tasks;
     }
 
     @Override
     public Collection<Task> findNewTasks(User user) {
-        return taskStore.findNewTasks(user);
+        var tasks = taskStore.findNewTasks(user);
+        setDateTimeByUserTimezone(user, tasks);
+        return tasks;
     }
 
     @Override
     public Collection<Task> findExpiredUncompletedTasks(User user) {
-        return taskStore.findExpiredUncompletedTasks(user);
+        var expiredTasks = taskStore.findExpiredUncompletedTasks(user);
+        setDateTimeByUserTimezone(user, expiredTasks);
+        return expiredTasks;
     }
 
     @Override
     public void complete(int id) {
         taskStore.complete(id);
+    }
+
+    /**
+     * Данный метод преобразует дату и время создания
+     * задачи согласно часовому поясу пользователя.
+     *
+     * Если часовой пояс не выбран, то время создания
+     * задачи отображается по умолчанию в UTC Time zone.
+     *
+     * @param user залогиненый пользователь
+     * @param tasks список задач залогиненого
+     *              пользователя
+     */
+    private static void setDateTimeByUserTimezone(User user, Collection<Task> tasks) {
+        if (user.getUserZone().isEmpty()) {
+            user.setUserZone("UTC");
+        } else {
+            tasks.forEach(task -> task.setCreated(task.getCreated()
+                    .atZone(ZoneId.of("UTC"))
+                    .withZoneSameInstant(ZoneId.of(user.getUserZone()))
+                    .toLocalDateTime()));
+        }
     }
 }

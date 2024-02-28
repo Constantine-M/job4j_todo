@@ -9,9 +9,12 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import ru.job4j.todo.model.User;
 import ru.job4j.todo.service.user.UserService;
+import ru.job4j.todo.util.TimeZoneUtil;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
+import java.util.Arrays;
+import java.util.TimeZone;
 
 /**
  * @author Constantine on 31.01.2024
@@ -70,9 +73,15 @@ public class UserController {
     /**
      * Метод обрабатывает запрос на получение
      * страницы регистрации пользователя.
+     *
+     * Во время регистрации пользователь может
+     * выбрать часовой пояс. Логика работы с часовыми
+     * поясами вынесена в утилитный класс.
+     * В контроллере это излишне.
      */
     @GetMapping("/register")
-    public String getRegistrationPage() {
+    public String getRegistrationPage(Model model) {
+        model.addAttribute("timeZones", TimeZoneUtil.getAllAvailableTimeZones());
         return "users/register";
     }
 

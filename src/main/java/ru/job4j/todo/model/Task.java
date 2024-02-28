@@ -8,6 +8,7 @@ import org.hibernate.annotations.DynamicUpdate;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -57,9 +58,13 @@ public class Task {
      * Чтобы данное поле не обновлялось во
      * время обновления задачи, мы использовали
      * параметр updatable.
+     *
+     * По умолчанию создается задача с
+     * часовым поясом UTC - оно же абсолютное
+     * время.
      */
     @Column(updatable = false)
-    private LocalDateTime created = LocalDateTime.now();
+    private LocalDateTime created = LocalDateTime.now(ZoneId.of("UTC"));
 
     private String title;
 

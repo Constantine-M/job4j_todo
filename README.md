@@ -12,6 +12,8 @@ This is a classic TODO web application with basic functionality:
 - delete task
 - display only completed tasks/only new tasks/all tasks attached to user
 - set priority for different task
+- set categories (task can have more than one category if you need)
+- set time zone upon registration
 
 In this project we applied the Command pattern to simplify out code.
 
@@ -50,7 +52,11 @@ Main
 
 Registration
 --------
-![img.png](files/registration.png)
+![img.png](files/register2.png)
+
+- Choosing time zone
+
+![img.png](files/register1.png)
 
 Login
 --------
@@ -66,7 +72,7 @@ Detail info
 
 Filter to choose task type
 -------
-![img.png](files/Filter.png)
+![img.png](files/filterTask.png)
 
 All completed tasks
 ------------
@@ -74,7 +80,7 @@ All completed tasks
 
 All new tasks
 -----------
-![img.png](files/newTask.png)
+![img.png](files/allNewTasks.png)
 
 Create task
 ----------

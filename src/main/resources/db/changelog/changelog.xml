@@ -24,5 +24,7 @@
     <include file="../scripts/010_dml_insert_categories_table.sql" relativeToChangelogFile="true"/>
     <include file="../scripts/011_dml_insert_categories_update_1.sql" relativeToChangelogFile="true"/>
     <include file="../scripts/012_ddl_alter_tasks_add_category.sql" relativeToChangelogFile="true"/>
+    <include file="../scripts/013_dd_alter_tasks_date_utc.sql" relativeToChangelogFile="true"/>
+    <include file="../scripts/014_ddl_alter_todo_user_add_timezone.sql" relativeToChangelogFile="true"/>
 
 </databaseChangeLog>

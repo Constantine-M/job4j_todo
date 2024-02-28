@@ -45,11 +45,15 @@ public class User {
 
     private String password;
 
-    public User(int id, String name, String login, String password) {
+    @Column(name = "user_zone")
+    private String userZone;
+
+    public User(int id, String name, String login, String password, String userZone) {
         this.id = id;
         this.name = name;
         this.login = login;
         this.password = password;
+        this.userZone = userZone;
     }
 
     @Override

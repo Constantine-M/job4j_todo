@@ -53,17 +53,28 @@
                         И чтобы вывести текст ошибки, добавили строку
                         <div id="loginFeedback" class="invalid-feedback" th:text="${error}">  -->
                 <div class="mb-3">
-                    <label for="login" class="form-label"><b>Login</b></label>
-                    <input type="text" class="form-control is-invalid" id="login" aria-describedby="loginFeedback" name="login" placeholder="Sleeping Beauty" required>
-                    <div id="loginFeedback" class="invalid-feedback" th:text="${error}"></div>
+                    <div class="row">
+                        <div class="col-6">
+                            <label for="login" class="form-label"><b>Login</b></label>
+                            <input type="text" class="form-control is-invalid" id="login" aria-describedby="loginFeedback" name="login" placeholder="Sleeping Beauty" required>
+                            <div id="loginFeedback" class="invalid-feedback" th:text="${error}"></div>
+                        </div>
+                        <div class="col-6">
+                            <label for="password" class="form-label"><b>Password</b></label>
+                            <input type="password" class="form-control" id="password" name="password" required>
+                        </div>
+                    </div>
                 </div>
                 <div class="mb-3">
-                    <label for="password" class="form-label"><b>Password</b></label>
-                    <input type="password" class="form-control" id="password" name="password" required>
+                    <label for="timezone" class="form-label"><b>Time zone</b></label>
+                    <select class="form-control" id="timezone" name="userZone">
+                        <option selected></option>
+                        <option th:each="timezone : ${timeZones}" th:value="${timezone.ID}" th:text="${timezone.ID + ' : ' + timezone.displayName}"></option>
+                    </select>
                 </div>
                 <div class="mb-3 row">
                     <div class="col-6"></div>
-                    <div class="col-6">
+                    <div class="col-6 mt-3">
                         <div class="row">
                             <div class="col-6"><a class="btn btn-danger w-100" th:href="@{/index}">Cancel</a></div>
                             <div class="col-6"><button class="btn btn-primary w-100" type="submit">Register</button></div>
