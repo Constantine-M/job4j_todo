@@ -12,5 +12,5 @@ public interface CategoryService {
 
     Collection<Category> findAll();
 
-    Collection<Category> findAllByIds(List<Integer> ids);
+    List<Category> findAllByIds(List<Integer> ids);
 }

@@ -34,7 +34,7 @@ public class HibernateCategoryStore  implements CategoryStore {
      * @return список категорий {@link Category}.
      */
     @Override
-    public Collection<Category> findAllByIds(List<Integer> ids) {
+    public List<Category> findAllByIds(List<Integer> ids) {
         return crudRepository.query("FROM Category category WHERE category.id IN :fIds", Category.class,
                 Map.of("fIds", ids));
     }

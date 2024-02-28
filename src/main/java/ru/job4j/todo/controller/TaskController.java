@@ -90,7 +90,7 @@ public class TaskController {
     public String create(@ModelAttribute Task task,
                          @SessionAttribute User user,
                          @RequestParam(value = "categoryIds") List<Integer> categoryIds) {
-        var categories = categoryService.findAllByIds(categoryIds).stream().toList();
+        var categories = categoryService.findAllByIds(categoryIds);
         task.setCategories(categories);
         task.setUser(user);
         taskService.create(task);

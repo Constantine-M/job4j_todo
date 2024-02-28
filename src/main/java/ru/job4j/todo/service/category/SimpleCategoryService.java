@@ -23,7 +23,7 @@ public class SimpleCategoryService implements CategoryService {
     }
 
     @Override
-    public Collection<Category> findAllByIds(List<Integer> ids) {
+    public List<Category> findAllByIds(List<Integer> ids) {
         return categoryStore.findAllByIds(ids);
     }
 }
